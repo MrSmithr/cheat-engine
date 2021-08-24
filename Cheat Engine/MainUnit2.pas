@@ -31,7 +31,7 @@ procedure initcetitle;
 
 
 
-const beta=''; //empty this for a release
+const beta=' beta 2.0.1'; //empty this for a release
 
 var
   CEnorm:string;
@@ -824,9 +824,7 @@ begin
             cbUseDBVMDebugger.checked:=reg.ReadBool('Use DBVM Debugger');
 
           if reg.ValueExists('DBVMBP Trigger COW') then
-            dbvmbp_options.TriggerCOW:=reg.ReadBool('DBVMBP Trigger COW')
-          else
-            dbvmbp_options.TriggerCOW:=true;
+            dbvmbp_options.TriggerCOW:=reg.ReadBool('DBVMBP Trigger COW');
 
           if reg.ValueExists('DBVMBP This Process Only') then
             dbvmbp_options.TargetedProcessOnly:=reg.ReadBool('DBVMBP This Process Only');

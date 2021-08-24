@@ -30,33 +30,25 @@ resourcestring
   rsFailedHashingTable = 'Failed hashing table';
   rsFailedCreatingHash = 'Failed creating hash';
   rsFailedGettingTheObjectLength = 'Failed getting the object length';
-  rsFailedCreatingHasAlgorithmProvider = 'Failed creating has algorithm '
-    +'provider';
+  rsFailedCreatingHasAlgorithmProvider = 'Failed creating hash algorithm provider';
   rsFailedToLoadPrivateKey = 'Failed to load private key';
   rsIsPasswordCorrect='Is the password correct?';
   rsCouldNotOpenTheAlgorithmProvider = 'Could not open the algorithm provider';
   rsBcryptCouldNotBeUsed = 'bcrypt could not be used';
-  rsSelectYourCheatEngineSignatureFile = 'Select your cheat engine signature '
-    +'file';
+  rsSelectYourCheatEngineSignatureFile = 'Select your cheat engine signature file';
   rsCheatEngineSignatureFiles = 'Cheat engine signature files';
-  rsThisTableHasBeenModified = 'This table has been modified. To load this '
-    +'table, remove the signature part with an editor (And check the file for '
-    +'suspicious things while you''re at it)';
+  rsThisTableHasBeenModified = 'This table has been modified. To load this table, remove the signature ' +
+                               'part with an editor (And check the file for suspicious things while you''re at it)';
   rsFailedToFinishTheHash2 = 'Failed to finish the hash 2';
   rsFailedToGetHashlength2 = 'Failed to get hashlength 2';
   rsFailedHashingTable2 = 'Failed hashing table 2';
   rsFailedCreatingHash2 = 'Failed creating hash 2';
-  rsInvalidPublicKey = 'The provided public key is invalid(Not signed by the '
-    +'Cheat Engine guy). Remove the signature section to load this table';
-  rsFailedCreatingHasAlgorithmProvider2 = 'Failed creating has algorithm '
-    +'provider';
+  rsInvalidPublicKey = 'The provided public key is invalid(Not signed by the Cheat Engine guy). Remove the signature section to load this table';
+  rsFailedCreatingHasAlgorithmProvider2 = 'Failed creating hash algorithm provider';
   rsFailedToLoadTheTablePublicKey = 'Failed to load the table public key';
   rsFailedToLoadCheatEnginePublicKey = 'Failed to load cheat engine public key';
-  rsNoSignedHash = 'This table''s signature does not contain a SignedHash '
-    +'element';
-  rsNoPublicKey =
-    'This table''s signature does not contain a PublicKey element';
-
+  rsNoSignedHash = 'This table''s signature does not contain a SignedHash element';
+  rsNoPublicKey = 'This table''s signature does not contain a PublicKey element';
 
 var
   cheatenginepublictablekey: BCRYPT_KEY_HANDLE=0;
@@ -152,7 +144,6 @@ var
   bHashObject: pointer=nil;
   hashlength: integer;
   hashbuffer: pointer=nil;
-
 
   customstring: string;
   s: ntstatus;
@@ -333,10 +324,6 @@ begin
 
 
     result:=true;
-
-
-
-
 
 
   finally

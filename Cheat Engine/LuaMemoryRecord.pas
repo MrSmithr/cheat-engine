@@ -615,7 +615,7 @@ begin
   begin
     memrec2:=lua_toceuserdata(L,-1);
     memrec1.treenode.MoveTo(memrec2.treenode, naAddChild);
-    memrec2.SetVisibleChildrenState;
+    memrec2.SetVisibleChildrenState(false);
   end;
 end;
 

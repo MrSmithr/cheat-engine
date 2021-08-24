@@ -1,7 +1,7 @@
 object frmAutoInject: TfrmAutoInject
-  Left = 419
+  Left = 391
   Height = 314
-  Top = 475
+  Top = 493
   Width = 431
   HelpContext = 1089
   AllowDropFiles = True
@@ -15,7 +15,7 @@ object frmAutoInject: TfrmAutoInject
   OnDropFiles = FormDropFiles
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   object Panel1: TPanel
     Left = 0
     Height = 34
@@ -70,8 +70,8 @@ object frmAutoInject: TfrmAutoInject
   end
   object MainMenu1: TMainMenu
     Images = aaImageList
-    Left = 184
-    Top = 120
+    Left = 104
+    Top = 144
     object File1: TMenuItem
       Caption = 'File'
       object miNewWindow: TMenuItem
@@ -313,7 +313,7 @@ object frmAutoInject: TfrmAutoInject
   object undotimer: TTimer
     Interval = 250
     Left = 40
-    Top = 72
+    Top = 152
   end
   object ReplaceDialog1: TReplaceDialog
     Options = [frDown, frReplace, frReplaceAll]

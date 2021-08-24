@@ -31,7 +31,7 @@ resourcestring
   rsMRNibbleSupportIsOnlyForHexadecimalDisplay = 'Nibble support is only for hexadecimal display';
   rsPqqqqqqqq = 'P->????????';
   rsP = 'P->';
-  rsError = 'error';
+  rsError = 'Error';
   rsToggleActivation = 'Toggle Activation';
   rsToggleActivationAllowIncrease = 'Toggle Activation Allow Increase';
   rsToggleActivationAllowDecrease = 'Toggle Activation Allow Decrease';
@@ -48,7 +48,6 @@ type
 
   TMemrecOption=(moHideChildren, moActivateChildrenAsWell, moDeactivateChildrenAsWell, moRecursiveSetValue, moAllowManualCollapseAndExpand, moManualExpandCollapse, moAlwaysHideChildren);
   TMemrecOptions=set of TMemrecOption;
-
 
   TMemoryRecordHotkey=class;
   TMemoryRecord=class;
@@ -99,7 +98,6 @@ type
 
   TMemrecOffsetList=array of TMemrecOffset;
 
-
   TMemoryRecordActivateEvent=function (sender: TObject; before, currentstate: boolean): boolean of object;
   TGetDisplayValueEvent=function(sender: TObject; var value: string): boolean of object;
 
@@ -110,12 +108,10 @@ type
     CurrentValue: string;
     UndoValue   : string;  //keeps the last value before a manual edit
 
-
     UnreadablePointer: boolean;
     BaseAddress: ptrUint; //Base address
     RealAddress: ptrUint; //If pointer, or offset the real address
     fIsOffset: boolean;
-
 
     fShowAsSignedOverride: boolean;
     fShowAsSigned: boolean;
@@ -158,7 +154,6 @@ type
     linkedDropDownMemrec: TMemoryRecord;
     memrecsLinkedToMe: array of TMemoryRecord; // a list of all memrecs linked to this memrec
 
-
     fDontSave: boolean;
 
     fAsync: boolean;
@@ -198,12 +193,10 @@ type
     procedure setAddressGroupHeader(state: boolean);
 
 
-    function getChildCount: integer;
-    function getChild(index: integer): TMemoryRecord;
-
-
 
     procedure setID(i: integer);
+    function getChildCount: integer;
+    function getChild(index: integer): TMemoryRecord;
     function getIndex: integer;
     function getParent: TMemoryRecord;
 
@@ -227,13 +220,7 @@ type
 
   public
 
-
-
-
-
     interpretableaddress: string;
-
-
 
 
     Extra: TMemRecExtraData;
@@ -257,7 +244,6 @@ type
     function hasParent: boolean;
 
     procedure appendToEntry(memrec: TMemoryrecord);
-
 
     function isBeingEdited: boolean;
     procedure beginEdit;
@@ -295,7 +281,6 @@ type
 
     procedure DoHotkey(hk :TMemoryRecordHotkey); //execute the specific hotkey action
 
-
     procedure disablewithoutexecute;
     procedure refresh;
 
@@ -304,7 +289,7 @@ type
 
     function getCurrentDropDownIndex: integer;
 
-    procedure SetVisibleChildrenState;
+    procedure SetVisibleChildrenState(ignoreOption: Boolean);
 
     procedure cleanupPointerOffsets;
     function getLuaRef: integer;
@@ -319,7 +304,6 @@ type
 
     constructor Create(AOwner: TObject);
     destructor destroy; override;
-
 
     property HotkeyCount: integer read getHotkeyCount;
     property Hotkey[index: integer]: TMemoryRecordHotkey read getHotkey;
@@ -398,7 +382,6 @@ type
     fAction: TMemrecHotkeyAction;
     fValue: string;
 
-
     procedure playActivateSound;
     procedure playDeactivateSound;
 
@@ -431,12 +414,10 @@ type
     constructor Create(o: TMemoryRecord; s: boolean);
   end;
 
-
 function MemRecHotkeyActionToText(action: TMemrecHotkeyAction): string;
 function TextToMemRecHotkeyAction(text: string): TMemrecHotkeyAction;
 
 implementation
-
 
 
 {$ifdef jni}
@@ -1164,12 +1145,14 @@ end;
 
 
 
-procedure TMemoryRecord.SetVisibleChildrenState;
+procedure TMemoryRecord.SetVisibleChildrenState(ignoreOption: Boolean);
 {Called when options change and when children are assigned}
 begin
   {$IFNDEF jni}
   if ((not factive) and (moHideChildren in foptions)) or (moAlwaysHideChildren in fOptions) then
-    treenode.Collapse(true)
+     treenode.Collapse(true)
+     else if ((treenode.Focused) and (ignoreOption)) then
+        treenode.Collapse(false)
   else
     treenode.Expand(false);
   {$ENDIF}
@@ -1189,7 +1172,7 @@ begin
   foptions:=newOptions;
 
   //apply changes (moHideChildren, moBindActivation, moRecursiveSetValue)
-  SetVisibleChildrenState;
+  SetVisibleChildrenState(false);
 
   refresh;
 end;
@@ -1200,7 +1183,7 @@ begin
   RefreshCustomType;
 end;
 
-procedure TMemoryRecord.setVarType(v:  TVariableType);
+procedure TMemoryRecord.setVarType(v: TVariableType);
 begin
   //setup some of the default settings
   case v of
@@ -1230,7 +1213,6 @@ begin
       showAsHex:=true;
     end;
 
-
     vtString: //if setting to the type of string enable the zero terminate method by default
       extra.stringData.ZeroTerminate:=true;
 
@@ -1239,23 +1221,18 @@ begin
         AutoAssemblerData.script:=tstringlist.create;
   end;
 
-
-
   fVarType:=v;
 end;
 
 procedure TMemoryRecord.setColor(c: TColor);
 begin
-  if (c=graphics.clWindowText) or
-     (c=graphics.clDefault)
-  then  //in case clWindowText isn't good to use
+  if c=graphics.clWindowText then  //in case clWindowText isn't good to use
     c:=clWindowtext;
 
   fColor:=c;
   {$IFNDEF jni}
   TAddresslist(fOwner).Update;
   {$ENDIF}
-
 end;
 
 procedure TMemoryRecord.setXMLnode(CheatEntry: TDOMNode);
@@ -1374,10 +1351,6 @@ begin
   begin
     try
       fColor:=strtoint('$'+tempnode.textcontent);
-      if (fcolor=graphics.clWindowText) or
-         (fcolor=graphics.clDefault)
-      then
-        fcolor:=clWindowtext;
     except
     end;
   end;
@@ -1401,12 +1374,10 @@ begin
       memrec.treenode:=treenode.owner.AddObject(nil,'',memrec);
       memrec.treenode.MoveTo(treenode, naAddChild); //make it the last child of this node
 
-
       //fill the entry with the node info
       memrec.setXMLnode(currentEntry);
       currentEntry:=currentEntry.NextSibling;
     end;
-
   end;
 
   treenode.Expand(false);
@@ -1525,7 +1496,6 @@ begin
           if (a<>nil) and (a.TextContent='1') then
             fpointeroffsets[j].OnlyUpdateWithReinterpret:=true;
 
-
           inc(j);
         end;
       end;
@@ -1634,7 +1604,7 @@ begin
   end;
 
 
-  SetVisibleChildrenState;
+  SetVisibleChildrenState(false);
   {$ENDIF}
 
 
@@ -1644,7 +1614,7 @@ end;
 procedure TMemoryRecord.appendToEntry(memrec: TMemoryrecord);
 begin
   treenode.MoveTo(memrec.treenode, naAddChild);
-  memrec.SetVisibleChildrenState;
+  memrec.SetVisibleChildrenState(false);
 end;
 
 
@@ -1899,9 +1869,7 @@ begin
   end;
 
 
-  if (fcolor<>clWindowText) and
-     (fcolor<>graphics.clDefault)
-  then
+  if fcolor<>clWindowText then
     cheatEntry.AppendChild(doc.CreateElement('Color')).TextContent:=inttohex(fcolor,6);
 
   if fisGroupHeader then
@@ -2277,7 +2245,7 @@ procedure TMemoryRecord.disablewithoutexecute;
 begin
   {$IFNDEF jni}
   factive:=false;
-  SetVisibleChildrenState;
+  SetVisibleChildrenState(false);
   treenode.Update;
   {$ENDIF}
 end;
@@ -2458,7 +2426,6 @@ begin
       TMemoryRecord(treenode[i].data).setActive(true);
   end;
 
-
   {$ENDIF}
 
   //6.5+
@@ -2470,7 +2437,7 @@ begin
   if wantedstate and assigned(fonactivate) then fonactivate(self, false, factive); //activated , after
   if not wantedstate and assigned(fondeactivate) then fondeactivate(self, false, factive); //deactivated , after
 
-  SetVisibleChildrenState;
+  SetVisibleChildrenState(false);
 
   if fScriptHotKey<>nil then
   begin
@@ -2552,7 +2519,6 @@ begin
         Taddresslist(fOwner).Repaint;
       end;
     end;
-
     processingThread:=nil;
   end;
 
@@ -2615,17 +2581,11 @@ begin
 
       if state then
       begin
-
         f:=GetValue;
-
-
         try
-
           SetValue(f);
          // OutputDebugString('SetValue returned');
-
         except
-
           fActive:=false;
           beep;
           exit;
@@ -2636,12 +2596,9 @@ begin
 
         FrozenValue:=f;
       end;
-
       fActive:=state;
     end;
-
   end else fActive:=state;
-
 
   processingDone;
 end;
@@ -2896,7 +2853,6 @@ begin
 
   temp:=temp and (not mask); //temp now only contains the bits that are of meaning
 
-
   if not extra.bitData.showasbinary then
     result:=inttostr(temp)
   else
@@ -2940,7 +2896,6 @@ begin
         else
           result:=result+' : '+utf8toansi(DropDownDescription[i]);
       end;
-
     end;
 
     if (not found) and DropDownReadOnly and DropDownDescriptionOnly and DisplayAsDropDownListItem and hasNotFoundResult then
@@ -2970,9 +2925,6 @@ var
 
   f: single;
 begin
-
-
-
   result:='';
   if fisGroupHeader then exit;
 
@@ -2987,9 +2939,6 @@ begin
   end;
 
   getmem(buf,bufsize);
-
-
-
   GetRealAddress;
 
   if ReadProcessMemory(processhandle, pointer(realAddress), buf, bufsize,br) then
@@ -3056,7 +3005,6 @@ begin
         if result<>'' then
           result:=copy(result,1,length(result)-1); //cut off the last space
       end;
-
 
     end;
   end
@@ -3228,10 +3176,7 @@ begin
                 lastBraceOpen:=0;
               end else usesMath:=true; //weird math that I don't get and should fail, but whatever...
             end;
-
-
             '-','+','/','*': usesMath:=true;
-
           end;
           inc(i);
         end;
@@ -3502,7 +3447,7 @@ begin
 
   freememandnil(buf);
 
-  frozenValue:=unparsedvalue;     //we got till the end, so update the frozen value
+  frozenValue:=unparsedvalue;     //we got to the end, so update the frozen value
 
   if (not isfreezer) and (GetValue<>newundovalue) then
     undovalue:=newundovalue;

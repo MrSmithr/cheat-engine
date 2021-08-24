@@ -20,10 +20,6 @@ uses
 
 type
   TContextFields=(cfAll,cfDebug, cfRegisters, cfFloat);
-
-  TDebugThreadHandler=class;
-  THandleBreakEvent=function(sender: TDebugThreadHandler; bp: PBreakpoint): boolean of object;
-
   TDebugEventHandler = class;
 
   TDebugThreadHandler = class
@@ -77,7 +73,6 @@ type
     currentBP: PBreakpoint;
     dbvm_currentCR3: qword;
 
-    fOnHandleBreakAsync: THandleBreakEvent;
 
     function CheckIfConditionIsMet(bp: PBreakpoint; script: string=''): boolean;
     function InNoBreakList: boolean;
@@ -145,7 +140,6 @@ type
     property isWaitingToContinue: boolean read WaitingToContinue;
     property isUnhandledException: boolean read unhandledException;
     property lastUnhandledExceptionCode: dword read unhandledExceptionCode;
-    property OnHandleBreakAsync: THandleBreakEvent read fOnHandleBreakAsync write fOnHandleBreakAsync;
   end;
 
   TDebugEventHandler = class
@@ -254,7 +248,7 @@ begin
         d:=TDisassembler.Create;
         d.disassemble(address2,desc);
         if copy(d.LastDisassembleData.opcode,1,3)<>'REP' then
-          address:=previousopcode(address,d);
+          address:=previousopcode(address);
 
         freeandnil(d);
       end;
@@ -998,28 +992,20 @@ begin
 end;
 
 procedure TDebugThreadHandler.HandleBreak(bp: PBreakpoint; var dwContinueStatus: dword);
-var handledByOnHandleBreakAsync: boolean;
 begin
 
   TDebuggerthread(debuggerthread).execlocation:=38;
 
-  handledByOnHandleBreakAsync:=false;
-  if assigned(fOnHandleBreakAsync) then
-    handledByOnHandleBreakAsync:=fOnHandleBreakAsync(self, bp);
-
 
   //synchronize(VisualizeBreak);
   //go to sleep and wait for an event that wakes it up. No need to worry about deleted breakpoints, since the cleanup will not be called until this routine exits
-  if handledByOnHandleBreakAsync=false then
-  begin
-    TDebuggerthread(debuggerthread).synchronize(TDebuggerthread(debuggerthread), VisualizeBreak);
+  TDebuggerthread(debuggerthread).synchronize(TDebuggerthread(debuggerthread), VisualizeBreak);
 
-    if WaitingToContinue then
-    begin
-      //Outputdebugstring('updated gui');
-      onContinueEvent.WaitFor(infinite);
-      //Outputdebugstring('returned from gui');
-    end;
+  if WaitingToContinue then
+  begin
+    //Outputdebugstring('updated gui');
+    onContinueEvent.WaitFor(infinite);
+    //Outputdebugstring('returned from gui');
   end;
 
   if continueHandled then
@@ -1220,10 +1206,7 @@ begin
 
   if found then
   begin
-    if bpp^.owner<>nil then
-      currentbp:=bpp^.owner
-    else
-      currentbp:=bpp;   //always use the main, the children may get screwed over
+    currentBP:=bpp;
 
     bpp:=bpp2;
     outputdebugstring('Handling breakpoint');
@@ -1371,7 +1354,6 @@ begin
 
         if ((bpp.breakpointMethod=bpmException) and (not bpp.markedfordeletion)) or bpp.active then
         begin
-
           foundCodeDialog_AddRecord;
 
           if CurrentDebuggerInterface is TNetworkDebuggerInterface then

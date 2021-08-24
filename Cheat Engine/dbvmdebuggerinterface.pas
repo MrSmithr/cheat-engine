@@ -39,7 +39,6 @@ type
     resumerThread: TDBVMResumerThread;
 
     processCR3: qword;
-    debuggerAttachStatus: string;
     procedure SteppingThreadLost;
 
     function setBreakEvent(var lpDebugEvent: TDebugEvent; frozenThreadID: integer): boolean;
@@ -75,7 +74,6 @@ uses DBK32functions, ProcessHandlerUnit, symbolhandler, simpleaobscanner,
 
 resourcestring
   rsDBVMLevelNotFor32Bit = 'DBVM level debug does not work on the 32-bit CE';
-  rsDBVMFunctionNeedsDBVM = 'Sorry, but you need DBVM for DBVM level debugging';
 
 
 procedure TDBVMResumerThread.Execute;
@@ -453,7 +451,7 @@ begin
     result:=true;
   end
   else
-    result:=newkernelhandler.GetThreadContext(hthread, lpContext);
+    result:=false;
 end;
 
 
@@ -465,21 +463,15 @@ var
   br: ptruint;
   i,j: integer;
 
-  cr3log: array [0..512] of qword; //512 instead of 511 due to the offset by 1
+  cr3log: array [0..512] of qword;
   mbi: TMEMORYBASICINFORMATION;
 
   oldforce: boolean;
-
-  s: string;
 begin
-  zeromemory(@cr3log[0], 513*sizeof(qword));
-  debuggerAttachStatus:='Attach started';
-
   if (dwprocessid=0) or (dwProcessID=$ffffffff) then dwProcessId:=GetCurrentProcessId; //just a temporary id to get some usermode and kernelmode 'break'points
 
   if (processhandler.processid=0) or (processhandler.processid<>dwProcessId) then
   begin
-    debuggerAttachStatus:='Opening process';
     processhandler.processid:=dwProcessID;
     Open_Process;
     symhandler.kernelsymbols:=true;
@@ -487,25 +479,20 @@ begin
   end
   else
   begin
-    debuggerAttachStatus:='Using opened process';
     if symhandler.kernelsymbols=false then
     begin
-      debuggerAttachStatus:='Activating kernelsymbols';
       symhandler.kernelsymbols:=true;
       symhandler.reinitialize;
     end;
   end;
 
 
-  debuggerAttachStatus:='obtaining CR3';
   GetCR3(processhandle, processcr3);
   cr3log[0]:=processcr3;
 
 
 
   //scan executable memory for a CC
-  debuggerAttachStatus:='Scanning int3 executable memory in target process';
-
   oldforce:=forceCR3VirtualQueryEx;
   try
     if usedbkquery then
@@ -524,51 +511,37 @@ begin
 
   if dbvmbp_options.KernelmodeBreaks then
   begin
-
     if kernelmodeloopint3=0 then
     begin
-      debuggerAttachStatus:='Scanning int3 executable memory in kernel. Step 1: Waiting for symbols';
       symhandler.waitforsymbolsloaded(true);
-      debuggerAttachStatus:='Scanning int3 executable memory in kernel. Step 2: Scanning';
       if symhandler.getmodulebyname('ntoskrnl.exe',mi) then
       begin
         for i:=0 to 512 do
         begin
           if cr3log[i]=0 then break;  //end of the list
-          if ((cr3log[i] and 1)=0) then  //windows 10: CR3 ending with 1 is usermode, 2 is kernelmode
+
+          ka:=mi.baseaddress;
+          while (kernelmodeloopint3=0) and (ka<mi.baseaddress+mi.basesize) do
           begin
-            debuggerAttachStatus:=format('Scanning int3 executable memory in kernel CR3=%8x (index %d)',[cr3log[i],i]);
-
-            ka:=mi.baseaddress;
-            while (kernelmodeloopint3=0) and (ka<mi.baseaddress+mi.basesize) do
+            if GetPageInfoCR3(cr3log[i],ka,mbi) then //get some page info (like if it's executable)
             begin
-              if GetPageInfoCR3(cr3log[i],ka,mbi) then //get some page info (like if it's executable)
+              if mbi.Protect in [PAGE_EXECUTE_READ,PAGE_EXECUTE_READWRITE] then
               begin
-                if mbi.Protect in [PAGE_EXECUTE_READ,PAGE_EXECUTE_READWRITE] then
+                while (kernelmodeloopint3=0) and (ka<ptruint(mbi.BaseAddress)+mbi.RegionSize) do
                 begin
-                  while (kernelmodeloopint3=0) and (ka<ptruint(mbi.BaseAddress)+mbi.RegionSize) do
+                  if ReadProcessMemoryCR3(cr3log[i],pointer(ka),@buffer,4096,br) then
                   begin
-                    if ReadProcessMemoryCR3(cr3log[i],pointer(ka),@buffer,4096,br) then
-                    begin
-                      for j:=0 to 4095 do
-                        if buffer[j]=$cc then
-                        begin
-                          kernelmodeloopint3:=ka+j;
-                          break;
-                        end;
-                    end;
-                    inc(ka,4096);
+                    for j:=0 to 4095 do
+                      if buffer[j]=$cc then
+                      begin
+                        kernelmodeloopint3:=ka+j;
+                        break;
+                      end;
                   end;
-                end else ka:=ptruint(mbi.BaseAddress)+mbi.RegionSize;
-              end else inc(ka,4096);
-            end;
-
-            if kernelmodeloopint3=0 then
-            begin
-              debuggerAttachStatus:='Failure finding int3 bp code inside kernelmode executable memory';
-              break;
-            end;
-
+                  inc(ka,4096);
+                end;
+              end else ka:=ptruint(mbi.BaseAddress)+mbi.RegionSize;
+            end else inc(ka,4096);
           end;
 
           if kernelmodeloopint3<>0 then break;
@@ -576,10 +549,9 @@ begin
           if (i=0) then
           begin
             //need to fill the other cr3 values
-            debuggerAttachStatus:='Getting other CR3 values';
             if dbvm_log_cr3values_start then
             begin
-              ReadProcessMemory(processhandle,nil,@br, 1,br);
+              ReadProcessMemory(processhandle,0,@br, 1,br);
               sleep(2000);
               if dbvm_log_cr3values_stop(@cr3log[1])=false then break; //give up
             end
@@ -594,16 +566,12 @@ begin
   else
     kernelmodeloopint3:=0;
 
-  result:=(usermodeloopint3<>0) or (kernelmodeloopint3<>0);
+  result:=true;
 end;
 
 constructor TDBVMDebugInterface.create;
 begin
   inherited create;
-
-  if loaddbvmifneeded=false then
-      raise exception.create(rsDBVMFunctionNeedsDBVM);
-
   fDebuggerCapabilities:=fDebuggerCapabilities-[dbcCanUseInt1BasedBreakpoints];   //perhaps in the future add thread specific code
 
   resumerThread:=TDBVMResumerThread.Create(false);

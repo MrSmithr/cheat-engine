@@ -48,17 +48,16 @@ uses
   frmAAEditPrefsUnit, disassembler, hexviewunit, guisafecriticalsection,
   debugeventhandler, formFoundcodeListExtraUnit, debuggertypedefinitions,
   addresslist, MemoryRecordUnit, ThreadlistExFRM, windows7taskbar, tablist,
-  frmStructuresConfigUnit, VEHDebugger, VEHDebugSharedMem, DebuggerInterface,
-  WindowsDebugger, DebuggerInterfaceAPIWrapper, frmDebugEventsUnit, changelist,
-  tableconverter, DBK32functions, debug, multicpuexecution, vmxfunctions,
-  frmPagingUnit, bigmemallochandler, KernelDebuggerInterface, CustomTypeHandler,
-  LuaHandler, frmLuaEngineUnit, frmMemviewPreferencesUnit,
-  frmBreakpointConditionUnit, frmTracerConfigUnit, frmStackViewUnit, luaJit,
-  ScrollBoxEx, fileaccess, ceguicomponents, formdesignerunit, LuaCaller,
-  LuaSyntax, cesupport, trainergenerator, genericHotkey,
-  frmExeTrainerGeneratorUnit, luafile, xmplayer_server, xmplayer_defines,
-  ExtraTrainerComponents, frmAdConfigUnit, IconStuff, cetranslator,
-  frmStringMapUnit, MemFuncs, frmStringPointerScanUnit,
+  frmStructuresConfigUnit, VEHDebugger, DebuggerInterface, WindowsDebugger,
+  DebuggerInterfaceAPIWrapper, frmDebugEventsUnit, changelist, tableconverter,
+  DBK32functions, debug, multicpuexecution, vmxfunctions, frmPagingUnit,
+  bigmemallochandler, KernelDebuggerInterface, CustomTypeHandler, LuaHandler,
+  frmLuaEngineUnit, frmMemviewPreferencesUnit, frmBreakpointConditionUnit,
+  frmTracerConfigUnit, frmStackViewUnit, luaJit, ScrollBoxEx, fileaccess,
+  ceguicomponents, formdesignerunit, LuaCaller, LuaSyntax, cesupport,
+  trainergenerator, genericHotkey, frmExeTrainerGeneratorUnit, luafile,
+  xmplayer_server, xmplayer_defines, ExtraTrainerComponents, frmAdConfigUnit,
+  IconStuff, cetranslator, frmStringMapUnit, MemFuncs, frmStringPointerScanUnit,
   frmStructPointerRescanUnit, sharedMemory, disassemblerComments,
   frmFilePatcherUnit, LuaCanvas, LuaPen, LuaFont, LuaBrush, LuaPicture, LuaMenu,
   LuaDebug, frmUltimapUnit, DBK64SecondaryLoader, frmHotkeyExUnit,
@@ -117,11 +116,11 @@ uses
   dotnethost, rttihelper, cefreetype, LuaDotNetPipe, LuaRemoteExecutor,
   autoassemblercode, CSharpCompiler, newhintwindow, memrecDataStructures,
   LuaCECustomButton, DBVMDebuggerInterface, frmCR3SwitcherUnit, tcclib,
-  sourcecodehandler, frmSourceDisplayUnit;
+  sourcecodehandler;
 
 {$R cheatengine.res}
 {$IFDEF windows}
-//{$R manifest.res}  //lazarus now has this build in (but sucks as it explicitly turns of dpi aware)
+//{$R manifest.res}  //lazarus now has this built in (but sucks as it explicitly turns off dpi awareness)
 //{$R Sounds.rc}
 //{$R images.rc}
 {$ifdef cpu32}

@@ -1,7 +1,7 @@
 object frmSymbolhandler: TfrmSymbolhandler
-  Left = 1056
+  Left = 422
   Height = 432
-  Top = 135
+  Top = 156
   Width = 497
   Caption = 'Symbol config'
   ClientHeight = 432

@@ -36,6 +36,7 @@ type
     Label32: TLabel;
     Label33: TLabel;
     Label34: TLabel;
+    Label4: TLabel;
     Label5: TLabel;
     Image1: TImage;
     Button1: TButton;
@@ -52,7 +53,6 @@ type
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Label4Click(Sender: TObject);
     procedure Label8Click(Sender: TObject);
@@ -78,12 +78,12 @@ uses tlgUnit,MainUnit2, MainUnit, dbvmLoadManual;
 
 resourcestring
   rsYourSystemDOESNOTSupportDBVM = 'Your system does not support DBVM. Perhaps it is already inside a VM';
-  rsThisMeansThatYouWillNeedANewCpuIntelToBeAbleToUseT = 'This means that you will need a new cpu (intel) to be able to use the advanced dbvm options';
+  rsThisMeansThatYouWillNeedANewCpuIntelToBeAbleToUseT = 'This means that you will need a new CPU (Intel) to be able to use the advanced DBVM options';
   rsYourSystemIsRunningDBVMVersion = 'Your system is running DBVM version %s (%.0n bytes free (%d pages))';
-  rsThisMeansThatYourSystemIsRunningDbvm = 'This means that your system is running dbvm. This means ce will make use of some advanced tools that are otherwise unavailable';
+  rsThisMeansThatYourSystemIsRunningDbvm = 'This means that your system is running dbvm. This means CE will make use of some advanced tools that are otherwise unavailable';
   rsYourSystemSupportsDBVM = 'Your system supports DBVM';
   rsThisMeansThatYouReCurrentlyNotRunningDbvm = 'This means that you''re currently not running dbvm, but that your system is capable of running it';
-  rsDidYouReallyThinkYouDFindAnEasterEggByDoingThisWel = 'Did you really think you''d find an easter egg by doing this? Well, you know what? You where right!';
+  rsDidYouReallyThinkYouDFindAnEasterEggByDoingThisWel = 'Did you really think you''d find an easter egg by doing this? Well, you know what? You were right!';
   rsAreYouSureYouWantToLaunchDBVM = 'Are you sure you want to launch DBVM? You seem to be running in 32-bit, so don''t really need it that badly (Except for ultimap and cloaked operations)';
   rsLaunchdbvmWasNotAssigned = 'launchdbvm was not assigned';
 
@@ -100,16 +100,7 @@ end;
 
 procedure TAbout.Button2Click(Sender: TObject);
 begin
-
-end;
-
-procedure TAbout.FormCreate(Sender: TObject);
-begin
-  if ShouldAppsUseDarkMode then
-  begin
-    label8.font.color:=clTeal;
-    label9.font.color:=clTeal;
-  end;
+  shellexecute(0,'open','https://www.paypal.com/xclick/business=dark_byte%40hotmail.com&no_note=1&tax=0&lc=US',nil,nil,sw_maximize);
 end;
 
 procedure TAbout.FormShow(Sender: TObject);
@@ -140,6 +131,7 @@ begin
 
   UpdateDBVMStatus;
 end;
+
 
 procedure TAbout.Label4Click(Sender: TObject);
 begin

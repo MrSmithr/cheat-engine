@@ -203,11 +203,11 @@ begin
   result:=nil;
   //check if y is between sourcecodestart/sourcecodestop, and if so get the sourcecode
 
-  if (sourcecodestart<>sourcecodestop) and InRange(top+y,sourcecodestart, sourcecodestop) then
+  if (sourcecodestart<>sourcecodestop) and InRange(y,sourcecodestart, sourcecodestop) then
   begin
     sci:=SourceCodeInfoCollection.getSourceCodeInfo(fAddress);
     if sci<>nil then
-      result:=sci.getLineInfo(fAddress);
+      result:=sci.get(fAddress);
   end;
 
 end;
@@ -437,6 +437,13 @@ begin
   addressstring:=inttohex(d.LastDisassembleData.address,8);
   bytestring:=d.getLastBytestring;
   opcodestring:=d.LastDisassembleData.prefix+d.LastDisassembleData.opcode;
+
+  //Correction for rendering bug.
+  if (processhandler.isNetwork=true) and (processhandler.SystemArchitecture=archarm) then
+  begin
+    bytestring+=' ';
+    opcodestring+=' ';
+  end;       
   
   parameterstring:=d.LastDisassembleData.parameters+' ';
   specialstring:=d.DecodeLastParametersToString;
@@ -465,14 +472,6 @@ begin
     addressString:=symbolname
   else
     addressString:=truncatestring(addressString, fHeaders.Items[0].Width-2);
-
-  //Correction for rendering bug.
-  if (processhandler.isNetwork=true) and (processhandler.SystemArchitecture=archarm) then
-  begin
-    addressstring+=' ';
-    bytestring+=' ';
-    opcodestring+=' ';
-  end;
 
   TDisassemblerview(owner).DoDisassemblerViewLineOverride(address, addressstring, bytestring, opcodestring, parameterstring, specialstring);
 
@@ -615,7 +614,7 @@ begin
     sourcecodeinfo:=SourceCodeInfoCollection.getSourceCodeInfo(faddress);
     if sourcecodeinfo<>nil then
     begin
-      lni:=sourcecodeinfo.getLineInfo(faddress);
+      lni:=sourcecodeinfo.get(faddress);
       if lni<>nil then
       begin
         sourcecode:=Tstringlist.create;
@@ -625,7 +624,7 @@ begin
         if (not UseOriginalRenderingSystem) and (ftfont<>nil) then
         begin
           sourcecodelineheight:=ceil(ftfont.TextHeight('xxx'));
-          sourcecodeindentationstart:=ceil(ftfont.TextWidth(sourcecode[0]+' '));
+          sourcecodeindentationstart:=ftfont.TextWidth(sourcecode[0]+' ');
         end
         else
         {$endif}
@@ -638,7 +637,7 @@ begin
 
         sourcecodeheight:=sourcecodelineheight*(sourcecode.Count-1); //first line is the file and linenumber
 
-        fheight:=height+sourcecodeheight;
+        fheight:=height+sourcecodelineheight;
       end;
     end;
   end;
@@ -877,7 +876,7 @@ begin
       else
       {$endif}
       begin
-        renderCCodeLine(fHeaders.Items[2].Left+1,linestart,AnsiToUtf8(sourcecode[i]));
+        renderCCodeLine(fHeaders.Items[2].Left,linestart,AnsiToUtf8(sourcecode[i]));
       end;
       inc(linestart, sourcecodelineheight);
     end;

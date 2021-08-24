@@ -1,12 +1,14 @@
 object Registers: TRegisters
-  Left = 1556
-  Height = 309
-  Top = 160
-  Width = 338
+  Left = 1448
+  Height = 312
+  Top = 208
+  Width = 240
   Caption = 'Registers'
-  ClientHeight = 309
-  ClientWidth = 338
+  ClientHeight = 312
+  ClientWidth = 240
+  Constraints.MinWidth = 240
   OnClose = FormClose
+  OnResize = FormResize
   OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '2.0.6.0'
@@ -17,13 +19,14 @@ object Registers: TRegisters
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
     Left = 0
-    Height = 251
+    Height = 312
     Top = 0
-    Width = 306
+    Width = 217
+    Anchors = [akTop, akLeft, akRight, akBottom]
     AutoSize = True
     BevelOuter = bvNone
-    ClientHeight = 251
-    ClientWidth = 306
+    ClientHeight = 312
+    ClientWidth = 217
     TabOrder = 0
     object LabelRegisters: TLabel
       AnchorSideLeft.Control = Panel1
@@ -58,15 +61,19 @@ object Registers: TRegisters
       AnchorSideBottom.Control = Panel1
       AnchorSideBottom.Side = asrBottom
       Left = 8
-      Height = 216
+      Height = 277
       Top = 26
-      Width = 240
+      Width = 209
+      Anchors = [akTop, akLeft, akRight, akBottom]
       AutoSize = True
       BorderSpacing.Top = 9
       BorderSpacing.Bottom = 9
       BevelOuter = bvNone
-      ClientHeight = 216
-      ClientWidth = 240
+      ChildSizing.VerticalSpacing = 7
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 1
+      ClientHeight = 277
+      ClientWidth = 209
       Font.Name = 'Courier New'
       ParentFont = False
       TabOrder = 0
@@ -78,9 +85,8 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 2
+        Top = 0
         Width = 240
-        BorderSpacing.Top = 2
         Caption = 'EAX 0123456789ABCDEF'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -97,10 +103,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 26
+        Top = 29
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'EBX 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -117,10 +122,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 50
+        Top = 58
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'ECX 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -137,10 +141,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 74
+        Top = 87
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'EDX 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -157,10 +160,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 98
+        Top = 116
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'ESI 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -177,10 +179,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 122
+        Top = 145
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'EDI 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -197,10 +198,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 146
+        Top = 174
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'EBP 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -217,10 +217,9 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 170
+        Top = 203
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'ESP 00000000'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
@@ -237,131 +236,10 @@ object Registers: TRegisters
         Cursor = crHandPoint
         Left = 0
         Height = 22
-        Top = 194
+        Top = 232
         Width = 240
         Anchors = [akTop, akLeft, akRight]
-        BorderSpacing.Top = 2
         Caption = 'EIP 00000000'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-    end
-    object pnlFlags: TPanel
-      AnchorSideLeft.Control = PanelRegistersList
-      AnchorSideLeft.Side = asrBottom
-      AnchorSideTop.Control = PanelRegistersList
-      AnchorSideRight.Control = Panel1
-      AnchorSideRight.Side = asrBottom
-      Left = 258
-      Height = 168
-      Top = 26
-      Width = 48
-      AutoSize = True
-      BorderSpacing.Left = 10
-      BevelOuter = bvNone
-      ChildSizing.HorizontalSpacing = 2
-      ChildSizing.Layout = cclLeftToRightThenTopToBottom
-      ChildSizing.ControlsPerLine = 1
-      ClientHeight = 168
-      ClientWidth = 48
-      Font.Name = 'Courier New'
-      ParentFont = False
-      TabOrder = 1
-      object lblCF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 2
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'CF 0'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-      object lblPF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 26
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'PF 0'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-      object lblAF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 50
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'AF 0'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-      object lblZF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 74
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'ZF 0'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-      object lblSF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 98
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'SF 0'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-      object lblDF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 122
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'DF 0'
-        ParentColor = False
-        PopupMenu = registerLabelContextMenu
-        OnDblClick = BrowseMemoryRegionClick
-        OnMouseDown = CopyRegisterValueToClipboardMouseRightClick
-      end
-      object lblOF: TLabel
-        AnchorSideRight.Side = asrBottom
-        Cursor = crHandPoint
-        Left = 0
-        Height = 22
-        Top = 146
-        Width = 48
-        BorderSpacing.Top = 2
-        Caption = 'OF 0'
         ParentColor = False
         PopupMenu = registerLabelContextMenu
         OnDblClick = BrowseMemoryRegionClick
@@ -375,13 +253,13 @@ object Registers: TRegisters
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 315
-    Height = 309
+    Left = 217
+    Height = 312
     Top = 0
     Width = 23
     Anchors = [akTop, akRight, akBottom]
     AutoSize = True
-    ClientHeight = 309
+    ClientHeight = 312
     ClientWidth = 23
     TabOrder = 1
     object Panel4: TPanel
@@ -390,7 +268,7 @@ object Registers: TRegisters
       AnchorSideTop.Side = asrCenter
       Left = 1
       Height = 60
-      Top = 124
+      Top = 126
       Width = 21
       AutoSize = True
       BevelOuter = bvNone

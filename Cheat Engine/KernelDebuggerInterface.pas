@@ -71,7 +71,6 @@ uses symbolhandler, ProcessHandlerUnit, dialogs;
 
 resourcestring
   rsDBKDebug_StartDebuggingFailed ='DBKDebug_StartDebugging failed';
-  rsKernelModeNeedsDBVM = 'You can''t use kerneldebug in 64-bit without DBVM';
 
 procedure TThreadPoller.CreateThreadEvent(threadid: dword);
 var ie: PInjectedEvent;
@@ -488,7 +487,7 @@ begin
 
 {$IFDEF CPU64}
   if loaddbvmifneeded=false then
-    raise exception.create(rsKernelModeNeedsDBVM);
+    raise exception.create('You can''t use kerneldebug in 64-bit without DBVM');
 {$ENDIF}
 
 

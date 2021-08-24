@@ -26,7 +26,6 @@ begin
 
   if ShouldAppsUseDarkMode and (parent<>nil) then
   begin
-    ToolTips:=false;
     AllowDarkModeForWindow(handle, 1);
     SetWindowTheme(Handle, 'explorer', nil);
 

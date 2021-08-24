@@ -139,8 +139,6 @@ type
     wasidle: boolean; //state of isIdle since last call to waitForAndHandleNetworkEvent
 
     newProgressbarLabel: string;
-
-    fShouldQuit: boolean;
     procedure UpdateProgressbarLabel; //synced
 
     procedure InitializeCompressedPtrVariables;
@@ -414,7 +412,6 @@ type
     procedure TerminateAndSaveState;
     procedure execute_nonInitializer;
     procedure execute; override;
-    procedure Terminate; //terminate is not overridable but this works for simple stuff, like the pointermap generator quit flag
     constructor create(suspended: boolean);
     destructor destroy; override;
 
@@ -4533,14 +4530,15 @@ begin
 
       progressbar.Position:=0;
       try
-        pointerlisthandler:=TReversePointerListHandler.Create(startaddress,stopaddress,not unalligned,progressbar, noreadonly, MustBeClassPointers, acceptNonModuleClasses, useStacks, stacksAsStaticOnly, threadstacks, stacksize, mustStartWithBase, BaseStart, BaseStop, includeSystemModules, RegionFilename, @fShouldQuit);
+
+        pointerlisthandler:=TReversePointerListHandler.Create(startaddress,stopaddress,not unalligned,progressbar, noreadonly, MustBeClassPointers, acceptNonModuleClasses, useStacks, stacksAsStaticOnly, threadstacks, stacksize, mustStartWithBase, BaseStart, BaseStop, includeSystemModules, RegionFilename);
+
+
         progressbar.position:=100;
 
-        if terminated then
-        begin
-          fOnScanDone(self, false,'');
-          exit;
-        end;
+
+
+
       except
         on e: exception do
         begin
@@ -5388,12 +5386,6 @@ begin
 
   savestate:=true;
   terminate;
-end;
-
-procedure TPointerscancontroller.Terminate;
-begin
-  fShouldQuit:=true;
-  tthread(self).Terminate;
 end;
 
 constructor TPointerscanController.create(suspended: boolean);

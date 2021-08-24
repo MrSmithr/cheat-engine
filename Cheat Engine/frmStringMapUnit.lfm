@@ -11,16 +11,16 @@ object frmStringMap: TfrmStringMap
   OnDestroy = FormDestroy
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '2.0.0.4'
+  LCLVersion = '2.0.10.0'
   object Panel1: TPanel
-    Left = 350
+    Left = 349
     Height = 400
     Top = 0
-    Width = 171
+    Width = 172
     Align = alRight
     AutoSize = True
     ClientHeight = 400
-    ClientWidth = 171
+    ClientWidth = 172
     TabOrder = 0
     OnResize = Panel1Resize
     object ProgressBar1: TProgressBar
@@ -31,7 +31,7 @@ object frmStringMap: TfrmStringMap
       Left = 6
       Height = 20
       Top = 5
-      Width = 159
+      Width = 160
       Anchors = [akTop, akLeft, akRight]
       BorderSpacing.Top = 4
       TabOrder = 0
@@ -71,7 +71,7 @@ object frmStringMap: TfrmStringMap
       Left = 6
       Height = 23
       Top = 174
-      Width = 159
+      Width = 160
       Anchors = [akTop, akLeft, akRight]
       BorderSpacing.Bottom = 48
       Enabled = False
@@ -84,7 +84,7 @@ object frmStringMap: TfrmStringMap
       Left = 6
       Height = 19
       Top = 117
-      Width = 164
+      Width = 165
       Caption = 'Strings must match reg exp'
       OnChange = cbRegExpChange
       TabOrder = 3
@@ -133,7 +133,7 @@ object frmStringMap: TfrmStringMap
       Left = 6
       Height = 54
       Top = 29
-      Width = 159
+      Width = 160
       Anchors = [akTop, akLeft, akRight]
       AutoSize = True
       BorderSpacing.Left = 5
@@ -141,7 +141,7 @@ object frmStringMap: TfrmStringMap
       BorderSpacing.Right = 5
       BevelOuter = bvNone
       ClientHeight = 54
-      ClientWidth = 159
+      ClientWidth = 160
       TabOrder = 7
       object btnFree: TButton
         AnchorSideLeft.Control = Panel2
@@ -152,7 +152,7 @@ object frmStringMap: TfrmStringMap
         Left = 0
         Height = 25
         Top = 29
-        Width = 159
+        Width = 160
         Anchors = [akTop, akLeft, akRight]
         AutoSize = True
         BorderSpacing.Top = 4
@@ -169,7 +169,7 @@ object frmStringMap: TfrmStringMap
         Left = 0
         Height = 25
         Top = 0
-        Width = 159
+        Width = 160
         Anchors = [akTop, akLeft, akRight]
         AutoSize = True
         Caption = 'Generate string map'
@@ -182,7 +182,7 @@ object frmStringMap: TfrmStringMap
     Left = 0
     Height = 400
     Top = 0
-    Width = 350
+    Width = 349
     Align = alClient
     Columns = <    
       item
@@ -204,13 +204,13 @@ object frmStringMap: TfrmStringMap
   object SaveDialog1: TSaveDialog
     DefaultExt = '.txt'
     Filter = 'Text files|*.txt'
-    left = 57
-    top = 170
+    Left = 57
+    Top = 170
   end
   object pmStringList: TPopupMenu
     Images = smImageList
-    left = 35
-    top = 33
+    Left = 136
+    Top = 170
     object miFind: TMenuItem
       Caption = 'Find...'
       ImageIndex = 0
@@ -228,12 +228,12 @@ object frmStringMap: TfrmStringMap
   object FindDialog1: TFindDialog
     Options = [frDown, frHideWholeWord, frHideUpDown, frHideEntireScope]
     OnFind = FindDialog1Find
-    left = 136
-    top = 40
+    Left = 56
+    Top = 120
   end
   object smImageList: TImageList
-    left = 255
-    top = 153
+    Left = 57
+    Top = 80
     Bitmap = {
       4C69010000001000000010000000FFFFFF00A0A0A060808080C0808080C08080
       80C0808080C0808080C0808080C0808080C0808080C0808080C0747474BFBCBC

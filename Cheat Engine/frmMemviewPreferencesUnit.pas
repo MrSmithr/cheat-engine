@@ -147,15 +147,15 @@ implementation
 uses MemoryBrowserFormUnit;
 
 resourcestring
-  rsBackgroundColor = 'Background color';
-  rsHexadecimalColor = 'Hexadecimal color';
-  rsNormalColor = 'Normal color';
-  rsRegisterColor = 'Register color';
-  rsSymbolColor = 'Symbol color';
+  rsBackgroundColor = 'Background colour';
+  rsHexadecimalColor = 'Hexadecimal colour';
+  rsNormalColor = 'Normal colour';
+  rsRegisterColor = 'Register colour';
+  rsSymbolColor = 'Symbol colour';
 
-  rsConditionalJumpColor = 'Conditional jump color';
-  rsUnconditionalJumpColor = 'Unconditional jump color';
-  rsCallColor = 'Call color';
+  rsConditionalJumpColor = 'Conditional jump colour';
+  rsUnconditionalJumpColor = 'Unconditional jump colour';
+  rsCallColor = 'Call colour';
 
 
   rsDCNormal='Normal';
@@ -243,7 +243,7 @@ begin
   lblRegHighLightChange.font:=FontDialog3.font;
 
   oldstate:=csUndefined;
-  cbColorGroupChange(cbColorGroup); //restore the colors
+  cbColorGroupChange(cbColorGroup); //restore the colours
 
   DoAutoSize;
 end;

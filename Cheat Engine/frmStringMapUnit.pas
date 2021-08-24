@@ -134,10 +134,6 @@ begin
       btnFree.enabled:=true;
     end;
   end;
-
-
-
-
 end;
 
 procedure TStringScan.AddString(address: ptruint; size: integer; unicode: boolean);
@@ -204,7 +200,6 @@ var buf: PByteArray;
   savetofile: boolean;
 begin
   totalhandled:=0;
-
 
   try
     //get memory regions
@@ -377,8 +372,6 @@ begin
 
   progressbar.Position:=0;
   progressbar.max:=100;
-
-
 
   inherited create(suspended);
 end;

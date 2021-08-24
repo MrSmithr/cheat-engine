@@ -29,7 +29,6 @@ type TProcessHandler=class
     fprocesshandle: THandle;
     fpointersize: integer;
     fSystemArchitecture: TSystemArchitecture;
-    fHexDigitPreference: integer;
     procedure setIs64bit(state: boolean);
     procedure setProcessHandle(processhandle: THandle);
   public
@@ -43,7 +42,6 @@ type TProcessHandler=class
     property pointersize: integer read fPointersize;
     property processhandle: THandle read fProcessHandle write setProcessHandle;
     property SystemArchitecture: TSystemArchitecture read fSystemArchitecture;
-    property hexdigitpreference: integer read fHexDigitPreference;
 end;
 
 
@@ -79,11 +77,13 @@ procedure TProcessHandler.setIs64bit(state: boolean);
 begin
   fis64bit:=state;
   if state then
-    fpointersize:=8
+  begin
+    fpointersize:=8;
+  end
   else
+  begin
     fpointersize:=4;
-
-  fhexdigitpreference:=fpointersize*2;
+  end;
 end;
 
 procedure TProcessHandler.setProcessHandle(processhandle: THandle);

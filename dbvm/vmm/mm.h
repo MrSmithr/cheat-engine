@@ -56,9 +56,6 @@ void unmapPhysicalMemoryGlobal(void *virtualaddress, int size);
 
 void VirtualAddressToIndexes(QWORD address, int *pml4index, int *pagedirptrindex, int *pagedirindex, int *pagetableindex);
 
-#define IndexesToVirtualAddress(pml4index, pagedirptrindex, pagedirindex, pagetableindex) (QWORD)(((QWORD)pml4index<<39) | ((QWORD)pagedirptrindex << 30) | ((QWORD)pagedirindex << 21) | ((QWORD)pagetableindex << 12))
-
-
 void *malloc(size_t size);
 void *malloc2(unsigned int size);
 void free(void* pointer);
@@ -84,11 +81,6 @@ void VirtualAddressToPageEntries(QWORD address, PPDPTE_PAE *pml4entry, PPDPTE_PA
 void mmAddPhysicalPageListToDBVM(QWORD *pagelist, int count, int inuse);
 void mmtest();
 
-typedef void(*MMENUMPAGESCALLBACK)(QWORD VirtualAddress, QWORD PhysicalAddress, int size, PPTE_PAE entry, void *context);
-
-int mmIsFreePage(void* address);
-
-void mmEnumAllPageEntries(MMENUMPAGESCALLBACK callbackfunction, int skipmapped, void *context);
 //void wtftest(void); //test routine to figure out why some memory gets paged out
 
 #endif //MM_H_

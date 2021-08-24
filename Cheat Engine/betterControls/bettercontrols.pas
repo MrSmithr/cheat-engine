@@ -13,7 +13,6 @@ uses
   newScrollBox, {$ifndef bc_skipsynedit}newSynEdit,{$endif}
   newPageControl, newtabcontrol, newStatusBar,
   newCheckListBox, newCheckGroup, newColorBox, newDirectoryEdit, NewHintwindow,
-  newToggleBox,
   Graphics, Themes, UxTheme, bettercontrolColorSet;
 {$else}
 uses macport, graphics,math, bettercontrolColorSet;
@@ -51,8 +50,6 @@ type
   TDirectoryEdit=class(TNewDirectoryEdit);
   THintWindow=class(TNewHintwindow);
   THintWindowClass =class of TNewHintwindow;
-
-  TToggleBox=class(TNewToggleBox);
 
 {$endif}
 var
@@ -153,7 +150,7 @@ begin
         if reg.ReadInteger('AppsUseLightTheme')=0 then
           UsesDarkMode:=dmYes
         else
-          UsesDarkMode:=dmNo;
+          UsesDarkMode:=dmNo; {Overidden}
       end;
 
 
@@ -283,7 +280,7 @@ initialization
         GetThemeColor(theme, 0,0,TMT_TEXTCOLOR,ColorSet.FontColor);
         GetThemeColor(theme, 0,0,TMT_FILLCOLOR,ColorSet.TextBackground);
         colorset.InactiveFontColor:=ColorSet.FontColor xor $aaaaaa;
-        ColorSet.ButtonBorderColor:=deccolor(ColorSet.FontColor,10);
+        ColorSet.ButtonBorderColor:=deccolor(ColorSet.FontColor,20);
 
         clwindowText:=ColorSet.FontColor;
 

@@ -229,10 +229,7 @@ begin
           fconnected:=false;
       end;
       if not fconnected then
-      begin
         closeConnection(fOnError);
-        exit(false);
-      end;
     end
     else
     begin
@@ -244,10 +241,7 @@ begin
           fconnected:=false;
       end;
       if not fconnected then
-      begin
         closeConnection(fOnError);
-        exit(false);
-      end;
     end;
 
     if fconnected and (GetOverlappedResult(pipe, o^, bt,false)=false) then   //todo: check for GetOverlappedResultEx and use that

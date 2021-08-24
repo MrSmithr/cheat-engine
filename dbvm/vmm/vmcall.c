@@ -1838,19 +1838,6 @@ int _handleVMCallInstruction(pcpuinfo currentcpuinfo, VMRegisters *vmregisters, 
     case VMCALL_LOG_CR3VALUES_START:
     {
 
-      if (CR3ValueLog==NULL)
-      {
-        csEnter(&CR3ValueLogCS);
-        if (CR3ValueLog==NULL)
-        {
-          CR3ValuePos=0;
-          CR3ValueLog=malloc(4096);
-          zeromemory(CR3ValueLog,4096);
-        }
-        csLeave(&CR3ValueLogCS);
-      }
-
-
       if (CR3ValueLog)
       {
         //already exists, just tell this cpu to do the logging
@@ -1860,8 +1847,20 @@ int _handleVMCallInstruction(pcpuinfo currentcpuinfo, VMRegisters *vmregisters, 
         if (canToggleCR3Exit)
             vmwrite(vm_execution_controls_cpu, vmread(vm_execution_controls_cpu) | PPBEF_CR3LOAD_EXITING | PPBEF_CR3STORE_EXITING);
 
+        vmregisters->rax=0;
+        break;
       }
+
+      csEnter(&CR3ValueLogCS);
+      CR3ValuePos=0;
+      CR3ValueLog=malloc(4096);
+      zeromemory(CR3ValueLog,4096);
+
+      csLeave(&CR3ValueLogCS);
+
       vmregisters->rax=1;
+
+
       break;
     }
 
@@ -1889,15 +1888,8 @@ int _handleVMCallInstruction(pcpuinfo currentcpuinfo, VMRegisters *vmregisters, 
 
       if (param->destination==0) //just a toggle to turn it off, and no need for results
       {
-        csEnter(&CR3ValueLogCS);
-        if (CR3ValueLog)
-          free(CR3ValueLog);
-
         CR3ValueLog=NULL;
         CR3ValuePos=0;
-        csLeave(&CR3ValueLogCS);
-
-
         vmregisters->rax=0;
         break;
       }
@@ -2061,18 +2053,6 @@ int _handleVMCallInstruction(pcpuinfo currentcpuinfo, VMRegisters *vmregisters, 
     {
       PVMCALL_SETSPEEDHACK_PARAM p=(PVMCALL_SETSPEEDHACK_PARAM)vmcall_instruction;
       speedhack_setspeed(p->speedhackspeed);
-      break;
-    }
-
-    case VMCALL_HIDEDBVMPHYSICALADDRESSES:
-    {
-      ept_hideDBVMPhysicalAddresses(currentcpuinfo);
-      break;
-    }
-
-    case VMCALL_HIDEDBVMPHYSICALADDRESSESALL:
-    {
-      ept_hideDBVMPhysicalAddressesAllCPUs(currentcpuinfo);
       break;
     }
 
@@ -2348,7 +2328,6 @@ int _handleVMCall(pcpuinfo currentcpuinfo, VMRegisters *vmregisters)
 #endif
 
 
-  currentcpuinfo->LastVMCall=-1;
 
   if (realmode_inthook_calladdressPA) //realmode hook present
   {

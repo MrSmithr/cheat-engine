@@ -102,7 +102,7 @@ type
     addresslistmemory: pointer;  //can be an array of regions, an array of pointers or an array of tbitaddress definitions
     addresslistoffset: qword; //offset into the savedscanaddressFS file
     SavedScanmemory: pointer;
-
+    SavedScanMemoryOffset: qword; //the offset in the SavedScanmemoryFS file
 
     maxnumberofregions: integer;
     scandir: string;
@@ -120,10 +120,6 @@ type
     currentRegion: integer;
     currentSubRegion: QWORD; //offset into the current region (governed by buffersize)
     Deinitialized: boolean; //if set do not lookup pointers
-
-    reinitializeLater: boolean;
-    reinitializeTimeout: qword;
-
     procedure cleanup;
     function loadIfNotLoadedRegion(p: pointer): pointer;
 
@@ -135,26 +131,20 @@ type
     lastFail: integer;
     AllowRandomAccess: boolean; //set this if you wish to allow random access through the list. (EXTREMELY INEFFICIENT IF IT HAPPENS, addresslist purposes only)
     AllowNotFound: boolean; //set this if you wish to return nil instead of an exception if the address can't be found in the list
-
-    memscan: TObject;
     function getpointertoaddress(address:ptruint;valuetype:TVariableType; ct: TCustomType; recallifneeded: boolean=true): pointer;
-    function getStringFromAddress(address: ptruint; out r: string; Hexadecimal: boolean=false; Signed: boolean=false; allVT: TVariableType=vtAll; allCustomType: TCustomType=nil): boolean;
 
     procedure deinitialize;
     procedure reinitialize;
 
-    property name: string read savedresultsname;
 
-
-    constructor create(scandir: string; savedresultsname: string; reinitializeLaterOnFailure: boolean=false);
+    constructor create(scandir: string; savedresultsname: string);
     destructor destroy; override;
 end;
 
 
 implementation
 
-uses Math, globals, memscan, lua, lauxlib, lualib, LuaClass, LuaObject,
-  LuaHandler, byteinterpreter;
+uses Math, globals;
 
 resourcestring
   rsMaxaddresslistcountIs0MeansTheAddresslistIsBad = 'maxaddresslistcount is 0 (Means: the addresslist is bad)';
@@ -306,39 +296,6 @@ begin
   LastAddressAccessed.index:=0; //reset the index
 end;
 
-function TSavedScanHandler.getStringFromAddress(address: ptruint; out r: string; Hexadecimal: boolean=false; Signed: boolean=false; allVT: TVariableType=vtAll; allCustomType: TCustomType=nil): boolean;
-var
-  p: pointer;
-  ms: TMemScan;
-
-  vtype: TVariableType;
-  ct: TCustomType;
-begin
-  result:=false;
-  if memscan=nil then exit;
-
-
-  ms:=TMemscan(memscan);
-
-  p:=getpointertoaddress(address, ms.VarType, ms.Customtype);
-  if p<>nil then
-  begin
-    if ms.vartype=vtAll then
-    begin
-      vtype:=allVT;
-      ct:=allCustomType;
-    end
-    else
-    begin
-      vtype:=ms.VariableType;
-      ct:=ms.Customtype;
-    end;
-
-    r:=readAndParsePointer(address, p, vtype, ct, hexadecimal, Signed);
-    result:=true;
-  end;
-end;
-
 function TSavedScanHandler.getpointertoaddress(address:ptruint;valuetype:TVariableType; ct: Tcustomtype; recallifneeded: boolean=true): pointer;
 var i,j: integer;
     pm: ^TArrMemoryRegion;
@@ -361,27 +318,8 @@ begin
 
   if Deinitialized then
   begin
-    if reinitializeLater and (gettickcount64>reinitializeTimeout) then  //if has to reinitialize check if enough time has passed and try again
-    begin
-      try
-        reinitialize;
-        //success
-        reinitializeLater:=false;
-        deinitialized:=false;
-      except
-        deinitialized:=true;
-        reinitializeLater:=true;
-        reinitializeTimeout:=GetTickCount64+1000;
-        lastFail:=1;
-        exit;
-      end;
-
-    end
-    else
-    begin
-      lastFail:=1;
-      exit;
-    end;
+    lastFail:=1;
+    exit;
   end;
 
   if AllowRandomAccess then //no optimization if random access is used
@@ -402,7 +340,7 @@ begin
 
     pm:=addresslistmemory;
 
-    if AllowRandomAccess and (currentregion>=0) and (address<pm^[currentregion].baseaddress+currentSubRegion) then //out of order access. Start from scratch
+    if AllowRandomAccess and (currentregion>=0) and (address<pm[currentregion].baseaddress) then //out of order access. Start from scratch
     begin
       currentRegion:=-1;
       currentSubRegion:=0;
@@ -782,7 +720,7 @@ begin
  end;
 end;
 
-constructor TSavedScanHandler.create(scandir: string; savedresultsname: string; reinitializeLaterOnFailure: boolean=false);
+constructor TSavedScanHandler.create(scandir: string; savedresultsname: string);
 begin
   inherited Create;
 
@@ -792,22 +730,7 @@ begin
 
   self.scandir:=scandir;
   self.savedresultsname:=savedresultsname;
-
-  try
-    InitializeScanHandler;
-  except
-    on e:exception do
-    begin
-      if reinitializeLaterOnFailure then
-      begin
-        Deinitialized:=true;
-        reinitializeLater:=true;
-        reinitializeTimeout:=gettickcount64+1000;
-      end
-      else
-        raise;
-    end;
-  end;
+  InitializeScanHandler;
 end;
 
 destructor TSavedScanHandler.destroy;
@@ -842,7 +765,6 @@ procedure TSavedScanHandler.deinitialize;
 begin
   cleanup;
   Deinitialized:=true;
-  reinitializeLater:=false;
 end;
 
 procedure TSavedScanHandler.reinitialize;
@@ -850,58 +772,6 @@ begin
   InitializeScanHandler;
   deinitialized:=false;
 end;
-
-
-//---------------LUA-------------------
-function savedscanhandler_getStringFromAddress(L: PLua_State): integer; cdecl;
-var
-  address: ptruint;
-  ssh: TSavedScanHandler;
-  r: string;
-  hexadecimal, signed: boolean;
-begin
-  result:=0;
-  ssh:=luaclass_getClassObject(L);
-  if lua_gettop(L)>=1 then
-  begin
-    try
-      address:=lua_toaddress(L,1);
-    except
-      on e: exception do
-      begin
-        lua_pushnil(L);
-        lua_pushstring(L, e.Message);
-        exit(2);
-      end;
-    end;
-
-    if lua_Gettop(L)>=2 then
-      hexadecimal:=lua_toboolean(L,2)
-    else
-      hexadecimal:=false;
-
-    if lua_getProperty(L)>=3 then
-      signed:=lua_toboolean(L,3)
-    else
-      signed:=false;
-
-    if ssh.getStringFromAddress(address,r, hexadecimal, signed) then
-      lua_pushstring(L,r)
-    else
-      lua_pushnil(L);
-
-    result:=1;
-  end;
-end;
-
-procedure savedscanhandler_addMetaData(L: PLua_state; metatable: integer; userdata: integer );
-begin
-  object_addMetaData(L, metatable, userdata);
-  luaclass_addClassFunctionToTable(L, metatable, userdata, 'getStringFromAddress', savedscanhandler_getStringFromAddress);
-end;
-
-initialization
-  luaclass_register(TSavedScanHandler, savedscanhandler_addMetaData);
 
 end.
 

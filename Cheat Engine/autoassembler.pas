@@ -693,7 +693,6 @@ begin
   for i:=0 to code.count-1 do
   begin
     currentline:=code[i];
-    instring:=false; //ce doesn't do multiline strings
 
     for j:=1 to length(currentline) do
     begin
@@ -715,7 +714,7 @@ begin
       end
       else
       begin
-        if (currentline[j]='''') then instring:=not instring;
+        if currentline[j]='''' then instring:=not instring;
         if currentline[j]=#9 then currentline[j]:=' '; //tabs are basicly comments
 
         if not instring then
@@ -3747,7 +3746,7 @@ begin
             if ok1=false then //not in the list yet, add it
             begin
               j:=length(dealloc);
-              setlength(dealloc, j+1);
+              setlength(dealloc, j-1);
               dealloc[j]:=disableinfo.allocs[i].address;
             end;
           end;

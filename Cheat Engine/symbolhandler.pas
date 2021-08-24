@@ -131,7 +131,6 @@ type
     structureList: TStringList;
 
     amodulebase: pointer;
-    lastAliveCheck: qword;
 
     {$ifdef darwin}
 
@@ -372,8 +371,6 @@ type
     procedure GetSymbolLists(list: TList);
 
     procedure NotifyFinishedLoadingSymbols; //go through the list of functions to call when the symbollist has finished loading
-    function getMainSymbolList: TSymbolListHandler;
-
     constructor create;
     destructor destroy; override;
 end;
@@ -1266,7 +1263,7 @@ var
   ExtraSymbolData: TExtraSymbolData;
 
 begin
-  self:=TSymbolloaderthread(UserContext);
+
   if symbolsize>64*1024 then
     symbolsize:=64*1024;
 
@@ -1278,11 +1275,8 @@ begin
   s:=pchar(@pSymInfo.Name);
 
 
-
+  self:=TSymbolloaderthread(UserContext);
   self.processThreadEvents;
-
-
-
 
 
   if self.currentModuleIsNotStandard then
@@ -1697,9 +1691,7 @@ var
 begin
   result:=false;
 
-
   {$IFNDEF UNIX}
-
   self:=TSymbolloaderthread(UserContext);
   self.CurrentModulename:=ModuleName;
 
@@ -1713,6 +1705,7 @@ begin
 
   self.processThreadEvents;
 
+
   if self.pdbonly then  //only files with a PDB
   begin
     for i:=0 to length(self.modulelist.withdebuginfo)-1 do
@@ -1725,18 +1718,13 @@ begin
   else
     result:=(self.terminated=false) and (SymEnumSymbols(self.thisprocesshandle, baseofdll, nil, @ES, self));
 
-
   //mark this module as loaded
   self.processThreadEvents;
 
   if self.terminated then exit;
   if symhandler=nil then exit;
 
-  if result then
-    symhandler.markModuleAsLoaded(baseofdll)
-  else
-    result:=true;
-
+  symhandler.markModuleAsLoaded(baseofdll);
   inc(self.enumeratedModules);
 
   self.fprogress:=ceil((self.enumeratedModules / self.modulecount) * 100);
@@ -1966,7 +1954,6 @@ begin
   {$ifdef windows}
   hasmodulespecifier:=false;
   getmem(pSymInfo,sizeof(TSYMBOL_INFO)+100);
-  modulename:='';
 
 
 
@@ -2107,9 +2094,6 @@ var
 
   SearchResult: ptruint;
 
-  b: byte;
-  ar: size_t;
-
   {$ifdef darwin}
   sym: CSSymbolRef;
   symname: pchar;
@@ -2117,14 +2101,6 @@ var
   {$endif}
 begin
 //  sleep(5000);
-
-  if (targetself=false) and (amodulebase<>nil) and (gettickcount64>lastAliveCheck+1000) then
-  begin
-    if ReadProcessMemory(processhandle, amodulebase, @b,1,ar)=false then
-      terminate;
-
-    lastAliveCheck:=GetTickCount64;
-  end;
 
   if symbolloaderthreadeventqueue.count>0 then
   begin
@@ -2673,15 +2649,7 @@ begin
               //enumeratedModules:=0;
               pdbonly:=true;
 
-              if targetself=false then
-              asm
-              nop
-              end;
               SymEnumerateModules64(thisprocesshandle, @EM, self );
-              if targetself=false then
-              asm
-              nop
-              end;
 
 
               pdbsymbolsloaded:=true;
@@ -2845,7 +2813,6 @@ begin
     //OutputDebugString('Symbol loader thread has finished without errors');
   except
     outputdebugstring(rsSymbolloaderthreadHasCrashed);
-    OutputDebugString('at part '+inttostr(debugpart));
   end;
 
   isloading:=false;
@@ -3968,7 +3935,7 @@ begin
       modulelistMREW.endread;
     end;
 
-    //if moduleidstring='' then
+    if moduleidstring='' then
     begin
       symbolloadervalid.Beginread;
       try
@@ -3989,14 +3956,11 @@ begin
       finally
         symbolloadervalid.endread;
       end;
+
     end;
 
 
-    if moduleidstring='' then
-    begin
-      symbolloaderthread.getStructureList(list);
-      exit(1);
-    end;
+    if moduleidstring='' then exit;
     if OpenDataBaseIfNeeded=false then exit;
 
     {$IFDEF windows}
@@ -4027,12 +3991,6 @@ begin
     end;
     {$ENDIF}
 
-
-    if list.count=0 then
-    begin
-      symbolloaderthread.getStructureList(list);
-      result:=1; //not a structinfo
-    end;
   end
   else
   begin
@@ -4694,7 +4652,6 @@ var mi: tmoduleinfo;
     tokens: TTokens;
     mathstring: string;
     hasMultiplication, hasPointer: boolean;
-    found: boolean;
 
     nextoperation: TCalculation;
     regnr: integer;
@@ -4734,7 +4691,6 @@ var mi: tmoduleinfo;
       nextTokenType:=ttQword; //reset to default
     end;
 begin
-
   nexttokentype:=ttQword;
   pointerstartpos:=0;
   pointerstartmax:=16;
@@ -5004,61 +4960,33 @@ begin
                   end;
                 end;
 
-                found:=false;
-                while si<>nil do
+                if si<>nil then
                 begin
                   if (si.extra<>nil) and (si.extra.forwarder) then
                   begin
                     if (si.extra.forwardsTo=0) then
                     begin
                       //parse the string at this address
-                      if si.extra.forwardsToString='' then
-                      begin
-                        getmem(p,128);
+                      getmem(p,128);
 
-                        br:=0;
-                        if not targetself then
-                          haserror:=not readprocessmemory(processhandle, pointer(si.address),p,127,br)
-                        else
-                          haserror:=not readprocessmemory(GetCurrentProcess, pointer(si.address),p,127,br);
+                      if not targetself then
+                        haserror:=not readprocessmemory(processhandle, pointer(si.address),p,127,br)
+                      else
+                        haserror:=not readprocessmemory(GetCurrentProcess, pointer(si.address),p,127,br);
 
-                        p[br]:=#0;
+                      p[br]:=#0;
 
-                        if haserror=false then
-                          si.extra.forwardsToString:=p;
-
-                        freememandnil(p);
-                      end;
-
-                      si.extra.forwardsTo:=getAddressFromName(si.extra.forwardsToString, waitforsymbols, hasError, context, shallow);
-                      if haserror then
-                      begin
-                        if si.alternative<>nil then
-                        begin
-                          si:=si.alternative; //try this alternative
-                          hasError:=false;
-                          continue;
-                        end
-                        else
-                          break;//not found
-                      end;
-
+                      si.extra.forwardsTo:=getAddressFromName(p, waitforsymbols, hasError, context, shallow);
+                      si.extra.forwardsToString:=p;
+                      freememandnil(p);
                     end;
 
                     tokens[i]:=inttohex(ApplyTokenType(si.extra.forwardsto),8);
-                    found:=true;
-                    break;
                   end
                   else
-                  begin
                     tokens[i]:=inttohex(ApplyTokenType(si.address),8);
-                    found:=true;
-                    break;
-                  end;
-
+                  continue;
                 end;
-
-                if found then continue;
 
               end;
             end;
@@ -5946,10 +5874,6 @@ begin
       SymbolsLoadedNotification[i](self);
 end;
 
-function TSymhandler.getMainSymbolList: TSymbolListHandler;
-begin
-  exit(symbollist);
-end;
 
 destructor TSymhandler.destroy;
 begin

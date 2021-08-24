@@ -1194,7 +1194,9 @@ begin
       mOutput.lines.add(mscript.text);
 
 
+    mOutput.Lines.BeginUpdate;
     lua_setPrintOutput(mOutput.lines);
+    mOutput.Lines.EndUpdate;
 
     i:=0;
 {    luaclass_newClass(Luavm, self);
@@ -1231,10 +1233,12 @@ begin
 
               mOutput.lines.add(pad+templist[ln]);
             end;
+            mOutput.Lines.EndUpdate;
           end;
 
           templist.free;
-                           {
+
+          {
           pc:=lua_tolstring(luavm, i,nil);
           if pc<>nil then
             mOutput.lines.add(':'+pc)
@@ -1407,8 +1411,6 @@ begin
   mscript.Gutter.Color:=clBtnFace;
   mscript.Gutter.LineNumberPart.MarkupInfo.Background:=clBtnFace;
   mscript.Gutter.SeparatorPart.MarkupInfo.Background:=clBtnFace;
-
-  mscript.LineHighlightColor.Background:=ColorToRGB(mscript.Color) xor $212121;
 
 
   fq:=mscript.Font.Quality;

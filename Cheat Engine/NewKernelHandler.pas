@@ -911,8 +911,6 @@ var
   x: PTRUINT;
   found: boolean=false;
 begin
-  cr3:=cr3 and MAXPHYADDRMASKPB;
-
   result:=false;
   pml4index:=(VirtualAddress shr 39) and $1ff;
   pagedirptrindex:=(VirtualAddress shr 30) and $1ff;
@@ -1008,8 +1006,6 @@ var
 
   x: PTRUINT;
 begin
-  cr3:=cr3 and MAXPHYADDRMASKPB;
-
   lpbuffer.BaseAddress:=pointer(VirtualAddress and $fffffffffffff000);
   result:=false;
   pml4index:=(VirtualAddress shr 39) and $1ff;
@@ -1083,8 +1079,6 @@ var
 
   x: PTRUINT;
 begin
-  cr3:=cr3 and MAXPHYADDRMASKPB;
-
   result:=false;
   pml4index:=(VirtualAddress shr 39) and $1ff;
   pagedirptrindex:=(VirtualAddress shr 30) and $1ff;

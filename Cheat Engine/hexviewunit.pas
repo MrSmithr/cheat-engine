@@ -1,6 +1,4 @@
-// Copyright Cheat Engine. All Rights Reserved.
-
-unit hexviewunit;
+unit hexviewunit; 
 
 {$mode delphi}
 
@@ -1229,28 +1227,24 @@ begin
 end;
 
 procedure THexView.PasteFromClipboard;
-var
-  b: TBytes;
-  i: integer;
+var s: string;
+b: TBytes;
+i: integer;
 
-  validbytes: integer;
-  fromAddress, toAddress: ptrUint;
+validbytes: integer;
+fromAddress, toAddress: ptrUint;
 
-  pastestring: string;
-  values: array of string;
 
-  vtype: TVariableType;
-  hex: boolean;
 begin
   {$IFNDEF STANDALONEHV}
   if isEditing or fhasSelection then
   begin
-    pastestring:=clipboard.AsText;
+
+    s:=clipboard.AsText;
     if isediting then
     begin
       fromAddress:=selected;
       toaddress:=selected;
-
     end
     else
     begin
@@ -1260,7 +1254,7 @@ begin
 
 
     try
-      ConvertStringToBytes(pastestring,true, b);
+      ConvertStringToBytes(s,true, b);
       validbytes:=0;
       for i:=0 to length(b)-1 do
         if b[i]<>-1 then inc(validbytes);
@@ -1291,13 +1285,13 @@ begin
 
     if selectionType=hrChar then
     begin
-      if (isEditing) or ((toAddress-FromAddress)>length(pastestring)) then
-        ToAddress:=FromAddress+length(pastestring)-1;
+      if (isEditing) or ((toAddress-FromAddress)>length(s)) then
+        ToAddress:=FromAddress+length(s)-1;
 
       i:=1;
       while fromaddress<=ToAddress do
       begin
-        setbyte(fromaddress,ord(pastestring[i]));
+        setbyte(fromaddress,ord(s[i]));
         inc(i);
         inc(fromaddress);
 
@@ -1305,88 +1299,22 @@ begin
     end
     else
     begin
-      values:=pastestring.Split(' ');
-      if (length(values)=1) and (length(b)>1) and (displaytype=dtByte) then
+      if (isEditing) or ((toAddress-FromAddress)>length(b)) then
+        ToAddress:=FromAddress+length(b)-1;
+
+      i:=0;
+      while fromaddress<=ToAddress do
       begin
-        //it's likely an AOB string without spaces, use the old bytearray method instead
-        if (isEditing) or ((toAddress-FromAddress)>length(b)) then
-          ToAddress:=FromAddress+length(b)-1;
+        if b[i]<>-1 then
+          setbyte(fromaddress,b[i]);
 
-        i:=0;
-        while fromaddress<=ToAddress do
-        begin
-          if b[i]<>-1 then
-            setbyte(fromaddress,b[i]);
+        inc(i);
+        inc(fromaddress);
 
-          inc(i);
-          inc(fromaddress);
-
-          if isediting then
-            selected:=selected+1;
-        end;
-      end
-      else
-      begin
-        //parse the values 1 by 1
-
-        for i:=0 to length(values)-1 do
-        begin
-          hex:=true;
-
-          case fDisplayType of
-            dtByte: vtype:=vtByte;
-            dtByteDec:
-            begin
-              vtype:=vtByte;
-              hex:=false;
-            end;
-
-            dtWord: vtype:=vtWord;
-            dtWordDec:
-            begin
-              vtype:=vtWord;
-              hex:=false;
-            end;
-
-            dtDWord: vtype:=vtDword;
-            dtDWordDec:
-            begin
-              vtype:=vtDword;
-              hex:=false;
-            end;
-
-            dtQword: vtype:=vtQword;
-            dtQWordDec:
-            begin
-              vtype:=vtQword;
-              hex:=false;
-            end;
-
-            dtSingle:
-            begin
-              vtype:=vtSingle;
-              hex:=false;
-            end;
-
-            dtDouble:
-            begin
-              vtype:=vtDouble;
-              hex:=false;
-            end;
-
-            dtCustom:
-            begin
-              vtype:=vtCustom;
-              hex:=false;
-            end;
-          end;
-
-          ParseStringAndWriteToAddress(values[i],fromAddress,vtype,hex,CustomType);
-
-
-          inc(fromAddress, DisplayTypeByteSize(fDisplayType));
-        end;
+        if isediting then
+          selected:=selected+1;
       end;
+
     end;
     update;
 

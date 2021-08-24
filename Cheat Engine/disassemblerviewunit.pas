@@ -343,8 +343,6 @@ begin
     fTopSubline:=0;
   end;
 
-
-
   update;
 end;
 
@@ -793,7 +791,7 @@ begin
       offscreenbitmap.Width:=discanvas.width
     else
       offscreenbitmap.Width:=scrollbox.HorzScrollBar.Range;
-    offscreenbitmap.Height:=discanvas.Height;
+      offscreenbitmap.Height:=discanvas.Height;
 
     //clear bitmap
     {$ifdef USELAZFREETYPE}
@@ -807,7 +805,7 @@ begin
     else
     {$endif}
     begin
-      offscreenbitmap.Canvas.Brush.Color:=clBtnFace;
+      offscreenbitmap.Canvas.Brush.Color := clBtnFace;
       offscreenbitmap.Canvas.FillRect(rect(0,0,offscreenbitmap.Width, offscreenbitmap.Height));
     end;
 
@@ -919,15 +917,10 @@ begin
 
   scrollbox.VertScrollBar.Visible:=false;
 
-
-
-
   scrollbox.HorzScrollBar.Range:=(x+scrollbox.HorzScrollBar.Page)-scrollbox.clientwidth;
   scrollbox.HorzScrollBar.Visible:=true;
 
   update;
-
-
 
   scrollbox.OnResize:=scrollboxResize;
 end;
@@ -943,8 +936,7 @@ begin
   update;
 end;
 
-procedure TDisassemblerView.scrollbarKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TDisassemblerView.scrollbarKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   GetFocus;
 end;
@@ -988,27 +980,25 @@ end;
 procedure TDisassemblerView.updateScroller(speed: integer);
 begin
   if (speed<>0) then
-  begin
-    if scrolltimer=nil then
-      scrolltimer:=ttimer.create(self);
+    begin
+      if scrolltimer=nil then
+        scrolltimer:=ttimer.create(self);
 
-    //max speed is 50 (50 and -50)
-    scrolltimer.Interval:=10+100-(abs(speed)*(100 div 50));
+      //max speed is 50 (50 and -50)
+      scrolltimer.Interval:=10+100-(abs(speed)*(100 div 50));
 
-    if speed<0 then
-      scrolltimer.OnTimer:=scrollUp
-    else
-      scrolltimer.OnTimer:=scrollDown;
+      if speed<0 then
+        scrolltimer.OnTimer:=scrollUp
+      else
+        scrolltimer.OnTimer:=scrollDown;
 
-    scrolltimer.enabled:=true;
-  end
+      scrolltimer.enabled:=true;
+    end
   else
-  begin
-    if scrolltimer<>nil then
-      scrolltimer.enabled:=false;
-
-  end;
-
+    begin
+      if scrolltimer<>nil then
+        scrolltimer.enabled:=false;
+    end;
 end;
 
 procedure TDisassemblerView.scrollBarScroll(Sender: TObject; ScrollCode: TScrollCode; var ScrollPos: Integer);
@@ -1444,11 +1434,7 @@ begin
 
   self.OnMouseWheel:=mousescroll;
 
-
-
-
   getDefaultColors(colors);
-
 
   scrollbox.AutoSize:=false;
   scrollbox.AutoScroll:=false;
@@ -1464,7 +1450,11 @@ begin
   else
     defaultHexColor:=clBlue;
 
-  c[csNormal].backgroundcolor:=clBtnFace;
+  if ShouldAppsUseDarkMode() then
+     c[csNormal].backgroundcolor:=cl3DDkShadow
+  else
+      c[csNormal].backgroundcolor:=cl3DDkShadow;
+
   c[csNormal].normalcolor:=clWindowText;
   c[csNormal].registercolor:=clRed;
   c[csNormal].symbolcolor:=clGreen;

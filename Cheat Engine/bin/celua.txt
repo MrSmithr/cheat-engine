@@ -11,9 +11,8 @@ Global Functions:
 getCEVersion(): Returns a floating point value specifying the version of cheat engine
 getCheatEngineFileVersion(): Returns the full version data of the cheat engine version. A raw integer, and a table containing major, minor, release and build
 
-getOperatingSystem(): Returns 0 for Windows, 1 for Mac
 
-darkMode(): Returns true if CE is running in windows Dark Mode. Has no effect on mac
+getOperatingSystem(): Returns 0 for Windows, 1 for Mac
 
 activateProtection(): Prevents basic memory scanners from opening the cheat engine process (Not that useful)
 enableDRM(altitude OPTIONAL, secondaryprocessid OPTIONAL ) : Prevents normal memory scanners from reading the Cheat Engine process (kernelmode)  The secondaryprocessid lets you protect another process. E.g the game itself, so they can't easily see what you change 
@@ -24,8 +23,6 @@ loadTable(filename, merge OPTIONAL): Loads a .ct or .cetrainer. If merge is prov
 loadTable(stream ,merge OPTIONAL, ignoreluascriptdialog BOOLEAN): Loads a table from a stream object
 saveTable(filename, protect OPTIONAL, dontDeactivateDesignerForms OPTIONAL): Saves the current table. If protect is provided and set to true and the filename has the .CETRAINER extension, it will protect it from reading normally
 saveTable(stream, dontDeactivateDesignerForms OPTIONAL): Saves the current table to a stream object
-
-signTable(filename) : If the current CE install has a valid cheta engine signature, this will sign the specific table with that signature (will pop up the password request)
 
 note: addresses can be strings, they will get interpreted by ce's symbolhandler
 
@@ -55,7 +52,7 @@ readBytes(address,bytecount, ReturnAsTable ) : returns the bytes at the given ad
 writeBytes(address, x,x,x,x,...) : Write the given bytes to the given address from a table
 writeBytes(address, table) : Write the given bytes to the given address from a table
 
-readShortInteger(address) / readByte(address) : Reads a 8-bit integer from the specified address
+
 readSmallInteger(address) : Reads a 16-bit integer from the specified address
 readInteger(address) : Reads a 32-bit integer from the specified address
 readQword(address): Reads a 64-bit integer from the specified address
@@ -63,7 +60,6 @@ readPointer(address): In a 64-bit target this equals readQword, in a 32-bit targ
 readFloat(address) : Reads a single precision floating point value from the specified address
 readDouble(address) : Reads a double precision floating point value from the specified address
 readString(address, maxlength, widechar OPTIONAL) : Reads a string till it encounters a 0-terminator. Maxlength is just so you won't freeze for too long, set to 6000 if you don't care too much. Set WideChar to true if it is encoded using a widechar formatting
-writeShortInteger(address,value) / writeByte(address,value) : Writes a 16-bit integer to the specified address. Returns true on success
 writeSmallInteger(address,value) : Writes a 16-bit integer to the specified address. Returns true on success
 writeInteger(address,value) : Writes a 32-bit integer to the specified address. Returns true on success
 writeQword(address, value): Write a 64-bit integer to the specified address. Returns true on success
@@ -155,7 +151,6 @@ enumModules(processid OPTIONAL):
     Is64Bit: Boolean set to true if it's a 64-bit module
     PathToFile: String to the location this module is loaded
 
-
 md5memory(address, size): Returns a md5 sum calculated from the provided memory. 
 md5file(pathtofile): Returns a md5 sum calculated from the file. 
 getFileVersion(pathtofile): returns the 64-bit file version, and a table that has split up the file version into major, minor, release and build
@@ -191,10 +186,6 @@ errorOnLookupFailure(state): If set to true (default) address lookups in stringf
 waitforsymbols(state): If set to true looking up a symbol will wait for the symbol to be loaded(default true)
 
 generateAPIHookScript(address:string, addresstojumpto:string, addresstogetnewcalladdress:string OPT, ext:string OPT, targetself:boolean OPT) : Generates an auto assembler script which will hook the given address when executed
-assemble(line, address OPTIONAL, assemblePreference OPTIONAL, skipRangeCheck OPTIONAL): assembles a single line of code and returns a byte array of the generated code.  
-  address is the address to assemble this code at
-  assemblePreference: apNone=0, apShort=1, apLong=2, apFar=3
-  skipRangeCheck is a boolean.  Which will skip range checks if true and just assembles it, no matter of how wrong the result will be   
 autoAssemble(text, targetself OPTIONAL, disableInfo OPTIONAL) : runs the auto assembler with the given text. Returns true on success, with as secondary a table you can use when disabling (if targetself is set it will assemble into Cheat Engine itself). If disableInfo is provided the [Disable] section will be handled
 autoAssemble(text, disableInfo OPTIONAL)
 
@@ -366,6 +357,7 @@ MainForm.OnProcessOpened: function(processid, processhandle, caption) - Define t
 function onTableLoad(before): If defined this function will be called twice when a table gets loaded. Once before the loading, and once after.
 
 
+
 getOpenedProcessID() : Returns the currently opened process. If none is open, returns 0
 getOpenedProcessHandle(): Returns the handle of the currently opened process
 getProcessIDFromProcessName(name) : returns a processid
@@ -506,7 +498,7 @@ unloadLoadedFont(id)
 
 
 onAutoGuess(function) :
-  Registers a function to be called whenever autoguess is used to predict a variable type
+  Registers an function to be called whenever autoguess is used to predict a variable type
   function override (address, ceguess): Return the variable type you want it to be. If no change, just return ceguess
 
 
@@ -949,7 +941,6 @@ properties
   Item[] : Array to access each child menuitem
   [] : Item[]
   OnClick: Function to call when the menu item is activated
-  FontColor: Color of the font. (Only works when in dark mode)
 
 methods
   getCaption() : Gets the caption of the menu item
@@ -2404,8 +2395,6 @@ methods
 
   waitTillDone() : Waits for the memscan thread(s) to finish scanning. Always use this
   saveCurrentResults(name) : Save the current scanresults to a unique name for this memscan. This save can be used to compare against in a subsequent next scan
-  getSavedResultList(): Returns an indexed table of all the saved results (strings)
-  getSavedResultHandler(name): Gets the 'SavedResultHandler' object with this name (nil on failure)
   getAttachedFoundlist() : Returns a FoundList object if one is attached to this scanresults. Returns nil otherwise
 
 
@@ -2431,12 +2420,6 @@ methods
   getCount()
   getAddress(index) : Returns the address as a string
   getValue(index) : Returns the value as a string
-
-
-SavedResultHandler:
-  properties
-  methods
-    getStringFromAddress(address, hexadecimal:boolean OPTIONAL, signed: boolean OPTIONAL) : Returns the value in string format at the given address
 
 
 Memoryview class: (Inheritance: Form->ScrollingWinControl->CustomControl->WinControl->Control->Component->Object)
@@ -2746,7 +2729,6 @@ dbk_executeKernelMemory(address, parameter) :
 
 dbvm_initialize(offloados:Boolean OPTIONAL, reason:String OPTIONAL) : Initializes the dbvm functions (dbk_initialize also calls this) offloados is a boolean that when set will offload the system onto dbvm if it's not yet running (and only IF the dbk driver is loaded)
 dbvm_setKeys(key1,key2,key3) - Sets the keys to operate DBVM.  Key1 and Key3 are pointersize, key2 is 32-bit.  Note that if key1 or key3 are 64-bit wide, 32-bit CE can not use DBVM.  Returns true if DBVM is working, and automatically updates the current DBVM keys in CE and the driver if DBVM was already connected (e.g default keys)
-dbvm_getMemory(): Returns the total memory free for DBVM, and the total number of full pages as secondary result
 dbvm_addMemory(pagecount): Adds memory to DBVM (one page is 4096 bytes)
 dbvm_readMSR(msr): See dbk_readMSR but then using dbvm
 dbvm_writeMSR(msr, value): See dbk_writeMSR
@@ -2835,7 +2817,7 @@ dbvm_speedhack_setSpeed(speed): Changes the speed the timestamp counter goes up 
 dbvm_setTSCAdjust(enabled, timeout): If enabled (default true with timeout 2000) will return a small(20-30) timestamp between multiple rdtsc/rdtscp instructions.  The timeout is the number of actual TSC to watch else the actual time is given. A high timeout can make your system unstable
 
 dbk_getCR0(): Returns Control Register 0
-dbk_getCR3(): Returns Control Register 3 of the currently opened process.  (Note: This will also work without dbk when only dbvm is loaded)
+dbk_getCR3(): Returns Control Register 3 of the currently opened process
 dbk_getCR4(): Returns Control Register 4
 dbk_getPhysicalAddress(address): Returns the physical address of the given address
 dbk_writesIgnoreWriteProtection(state): Set to true if you do not wish to initiate copy-on-write behaviour
@@ -3017,7 +2999,7 @@ Disassembler Class (Inheritance: Object)
 
 
 createDisassembler() - Creates a disassembler object that can be used to disassemble an instruction and at the same time get more data
-getDefaultDisassembler() - Returns the default disassembler object used by a lot of ce's disassembler routines (Only use this from the main thread)
+getDefaultDisassembler() - Returns the default disassembler object used by a lot of ce's disassembler routines
 getVisibleDisassembler() - Returns the disassembler used by the disassemblerview. Special codes are: {H}=Hex value {R}=Register {S}=Symbol {N}=Nothing special {C######}=RGB color , {B######}=Background RGB color were ###### is 0xBBGGRR 
 
 registerGlobalDisassembleOverride(function(sender: Disassembler, address: integer, LastDisassembleData: Table): opcode, description): Same as Disassembler.OnDisassembleOverride, but does it for all disassemblers, including newly created ones.  Tip: Check the sender to see if you should use syntax highlighting codes or not
@@ -3212,7 +3194,8 @@ SymbolList class
 
 Global functions
   createSymbolList() : Creates an empty symbollist
-  getMainSymbolList(): Returns the symhandler internal symbol list (Note: This does not contain .net, modulelist, or other info)
+
+
 
 
 Properties
@@ -3233,8 +3216,6 @@ Methods
   deleteSymbol(address)
   register() : Registers the current symbol list with the symbol handler
   unregister(): Unregisters the current symbol list from the symbol handler
-  getModuleList(): Returns an indexed table with all the modules
-  getSymbolList(): Returns an unindex table with each symbol being an element containing an address
 
 
 Pagecontrol Class (WinControl->Control->Component->Object)
@@ -3359,7 +3340,7 @@ methods
 
 Database Class (Inheritance: CustomConnection->Component->Object)
 properties
-  Connected: Boolean - Sewt this to true to activate the connection. (turns back to false on failure)
+  Connected: Boolean
   DatabaseName: string
   KeepConnection: Boolean
   Params: Strings 
@@ -3396,7 +3377,6 @@ methods
 ODBCConnection class(Inheritance: SQLConnection->Database->CustomConnection->Component->Object) 
 createODBCConnection(owner) - creates an ODBCConnection object
 properties
-  DatabaseName: string - Name of the odbc connection
   Driver: string
   FileDSN: string
 
@@ -3624,8 +3604,6 @@ properties
 methods
   -
 
-----------------------------------------------------------
-
 HotkeyHandlerThread(Inheritence: Thread)
 getHotkeyHandlerThread() : Returns the hotkey handler thread used internally by CE
 
@@ -3678,7 +3656,7 @@ enumTypeDefs(ModuleHandle) : table - Returns an indexed table containing informa
 getTypeDefMethods(ModuleHandle, TypedefToken) : table - Returns a table containing all the methods in the specified typedef. Each entry is build up as {MethodToken, Name, Attributes, ImplementationFlags, ILCode, NativeCode, SecondaryNativeCode[]: Integer)
 getTypeDefParent(ModuleHandle, TypedefToken): {ModuleHandle, TypedefToken}
 getTypeDefData(ModuleHandle, TypedefToken) : table - Returns a table containing all the fields in the specified typedef.  {ObjectType, ElementType, CountOffset, ElementSize, FirstElementOffset, ClassName, Fields[]{Offset, FieldType, Name} }
-getMethodParameters(ModuleHandle, MethodDefToken): table - Returns a table containing all the parameters of the for method. {Name, CType}
+getMethodParameters(ModuleHandle, MethodDefToken): table - Returns a table containing all the parameters of the method. {Name, CType}
 getAddressData(address): table - Queries a specific address and returns information about it, assuming it is a valid object. It contains the following data: {StartAddress, ObjectType, ElementType, CountOffset, ElementSize, FirstElementOffset, ClassName, Fields[]{Offset, FieldType, Name} }
 
 enumAllObjects(): table - Queries ALL defined objects. {StartAddress, Size, TypeID{token1,token2}, ClassName}   WARNING: This will take a LOOOOOONG time and if done from the main thread will make it look like CE is frozen
@@ -3842,29 +3820,6 @@ properties
 methods
   startAnimatorTimer() - Starts the animator timer which will trigger an OnPaint with the speed of the current framesPerSecond property
   stopAnimatorTimer() - Stops the animator timer
-
-
-------- XML ------- 
-DOMNode class(Inheritance:)
-properties
-methods
-  writeToFile(filename)
-  writeToStream(stream)
-
-
-DOMDocument class(Inheritance: DOMNode_TopLevel->DOMNode_WithChildren->DOMNode)
-properties
-methods
-
-
-XMLDocument class(Inheritance: DOMDocument->DOMNode_TopLevel->DOMNode_WithChildren->DOMNode)
-createXMLDocument() - Creates an empty XML document
-createXMLDocumentFromFile(filename) - reads the given filename and return an XMLDocument with the parsed contents of the file
-createXMLDocumentFromStream(stream) - reads the given stream and returns an XMLDocument with the parsed contents of the stream
-
-properties
-methods
-
 
 ce lua extensions:
 string table:

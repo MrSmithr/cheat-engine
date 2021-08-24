@@ -116,7 +116,4 @@ void ept_reset();
 void ept_invalidate();
 void vpid_invalidate();
 
-void ept_hideDBVMPhysicalAddresses(pcpuinfo currentcpuinfo);
-void ept_hideDBVMPhysicalAddressesAllCPUs();
-
 #endif /* VMM_EPTHANDLER_H_ */

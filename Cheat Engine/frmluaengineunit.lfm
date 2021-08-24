@@ -12,7 +12,7 @@ object frmLuaEngine: TfrmLuaEngine
   OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.10.0'
   object GroupBox1: TGroupBox
     Left = 0
     Height = 182
@@ -788,8 +788,8 @@ object frmLuaEngine: TfrmLuaEngine
   end
   object MainMenu1: TMainMenu
     Images = leImageList
-    Left = 263
-    Top = 43
+    Left = 296
+    Top = 41
     object MenuItem1: TMenuItem
       Caption = 'File'
       object MenuItem11: TMenuItem
@@ -861,7 +861,7 @@ object frmLuaEngine: TfrmLuaEngine
   object OpenDialog1: TOpenDialog
     DefaultExt = '.LUA'
     Filter = 'Lua files (*.lua)|*.lua'
-    Left = 56
+    Left = 48
     Top = 41
   end
   object SaveDialog1: TSaveDialog
@@ -872,8 +872,8 @@ object frmLuaEngine: TfrmLuaEngine
   end
   object pmEditor: TPopupMenu
     Images = leImageList
-    Left = 64
-    Top = 152
+    Left = 224
+    Top = 43
     object miCut: TMenuItem
       Caption = 'Cut'
       ImageIndex = 7
@@ -947,8 +947,8 @@ object frmLuaEngine: TfrmLuaEngine
     Top = 184
   end
   object ilLuaDebug: TImageList
-    Left = 352
-    Top = 43
+    Left = 448
+    Top = 96
     Bitmap = {
       4C69050000001000000010000000000000000000000004733AFF2D8859FF859C
       90FF000000000000000000000000000000000000000000000000000000000000
@@ -1220,8 +1220,8 @@ object frmLuaEngine: TfrmLuaEngine
     Enabled = False
     Interval = 500
     OnTimer = tShowHintTimer
-    Left = 128
-    Top = 184
+    Left = 56
+    Top = 112
   end
   object FindDialog1: TFindDialog
     OnFind = dlgReplaceFind
@@ -1249,8 +1249,8 @@ object frmLuaEngine: TfrmLuaEngine
   end
   object leImageList: TImageList
     Scaled = True
-    Left = 221
-    Top = 120
+    Left = 384
+    Top = 43
     Bitmap = {
       4C690D0000001000000010000000C47B27FFE08D2CFFE08D2CFFE08D2CFFE08D
       2CFFE08D2CFFE08D2CFFE08D2CFFE08D2CFFE0872CFFE0832CFFE0892CFFE082

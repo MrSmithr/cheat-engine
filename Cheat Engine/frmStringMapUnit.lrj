@@ -1,0 +1,15 @@
+{"version":1,"strings":[
+{"hash":5036048,"name":"tfrmstringmap.caption","sourcebytes":[83,116,114,105,110,103,32,109,97,112],"value":"String map"},
+{"hash":221590640,"name":"tfrmstringmap.lblstringcount.caption","sourcebytes":[83,116,114,105,110,103,99,111,117,110,116,58,32,48],"value":"Stringcount: 0"},
+{"hash":114772308,"name":"tfrmstringmap.btnshowlist.caption","sourcebytes":[60,60,83,104,111,119,32,108,105,115,116],"value":"<<Show list"},
+{"hash":99556128,"name":"tfrmstringmap.cbregexp.caption","sourcebytes":[83,116,114,105,110,103,115,32,109,117,115,116,32,109,97,116,99,104,32,114,101,103,32,101,120,112],"value":"Strings must match reg exp"},
+{"hash":219672053,"name":"tfrmstringmap.cbcasesensitive.caption","sourcebytes":[67,97,115,101,32,115,101,110,115,105,116,105,118,101],"value":"Case sensitive"},
+{"hash":61918788,"name":"tfrmstringmap.cbmustbestart.caption","sourcebytes":[77,117,115,116,32,98,101,32,115,116,97,114,116],"value":"Must be start"},
+{"hash":9336603,"name":"tfrmstringmap.cbsavetodisk.caption","sourcebytes":[83,97,118,101,32,116,111,32,100,105,115,107],"value":"Save to disk"},
+{"hash":146697204,"name":"tfrmstringmap.btnfree.caption","sourcebytes":[70,114,101,101,32,116,104,101,32,99,117,114,114,101,110,116,32,108,105,115,116],"value":"Free the current list"},
+{"hash":167383232,"name":"tfrmstringmap.btnscan.caption","sourcebytes":[71,101,110,101,114,97,116,101,32,115,116,114,105,110,103,32,109,97,112],"value":"Generate string map"},
+{"hash":128683235,"name":"tfrmstringmap.listview1.columns[0].caption","sourcebytes":[65,100,100,114,101,115,115],"value":"Address"},
+{"hash":95129671,"name":"tfrmstringmap.listview1.columns[1].caption","sourcebytes":[83,116,114,105,110,103],"value":"String"},
+{"hash":218394958,"name":"tfrmstringmap.mifind.caption","sourcebytes":[70,105,110,100,46,46,46],"value":"Find..."},
+{"hash":347380,"name":"tfrmstringmap.minext.caption","sourcebytes":[78,101,120,116],"value":"Next"}
+]}

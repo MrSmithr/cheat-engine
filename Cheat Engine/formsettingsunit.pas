@@ -92,6 +92,7 @@ type
     cbDBVMDebugTriggerCOW: TCheckBox;
     cbDBVMDebugTargetedProcessOnly: TCheckBox;
     cbDBVMDebugKernelmodeBreaks: TCheckBox;
+    cdApp: TColorDialog;
     combothreadpriority: TComboBox;
     defaultbuffer: TPopupMenu;
     Default1: TMenuItem;
@@ -259,7 +260,6 @@ type
     procedure miUnexpectedBreakpointsOptionChange(Sender: TObject);
     procedure Panel3Click(Sender: TObject);
     procedure Panel3Resize(Sender: TObject);
-    procedure pcSettingChange(Sender: TObject);
     procedure rbInt3AsBreakpointChange(Sender: TObject);
     procedure replacewithnopsClick(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
@@ -352,8 +352,6 @@ type
 
 var
   formSettings: TformSettings;
-
-
 
   {$ifdef net}
   IsDebuggerPresentLocation: integer=0;
@@ -460,10 +458,10 @@ resourcestring
   rsFailureToOpenRegistry = 'Failure to open the registry entry';
   rsSpectreWarning = 'WARNING! Making kernelmode possible will slightly increase the speed of your system, BUT it will make you vulnerable to Spectre attacks'#13#10'Are you ok with this? (You can later re-enable this protection)';
   rsSpectreRestore = 'Your protection has been restored. Please restart your '
-    +'system to make it take effect';
+    +'system to take effect';
   rsFailMMRegistry = 'Failure getting the Memory Management registry key';
   rsSpectreRegistryChanged = 'The registry keys has been changed accordingly. '
-    +' Reboot your system to make it take effect';
+    +' Reboot your system to take effect';
   rsAllCustomTypes = 'All Custom Types';
 
 
@@ -1178,7 +1176,7 @@ begin
       preferedLanguage:='*';
 
     try
-      ini:=TIniFile.Create(cheatenginedir+{$ifdef darwin}'..'+DirectorySeparator+{$endif}'Languages' + DirectorySeparator+'language.ini');
+      ini:=TIniFile.Create(cheatenginedir+'languages' + DirectorySeparator+'language.ini');
       try
         old:=ini.ReadString('Language','PreferedLanguage','');
         ini.WriteString('Language','PreferedLanguage',preferedLanguage);
@@ -1527,10 +1525,7 @@ begin
   spbDown.top:=panel4.top-spbDown.height;
 end;
 
-procedure TformSettings.pcSettingChange(Sender: TObject);
-begin
 
-end;
 
 procedure TformSettings.rbInt3AsBreakpointChange(Sender: TObject);
 begin
@@ -1657,22 +1652,19 @@ begin
   mainform.miLanguages.Add(mi);
 
   f:=TStringList.Create;
-  {$ifdef darwin}
-  OutputDebugString('ScanForLanguages: Looking in '+CheatEngineDir+{$ifdef darwin}PathDelim+'..'+{$endif}PathDelim+'Languages');
-  {$endif}
-  FindAllDirectories(f,CheatEngineDir+{$ifdef darwin}PathDelim+'..'+{$endif}PathDelim+'Languages',false);
+  FindAllDirectories(f,CheatEngineDir+'\languages',false);
   for i:=0 to f.Count-1 do
   begin
     n:=f[i];
-    if not (fileexists(n+pathsep+'cheatengine.po') or fileexists(n+PathDelim+'cheatengine-x86_64.po') or fileexists(n+PathDelim+'cheatengine-i386.po')) then
+    if not (fileexists(n+'\cheatengine.po') or fileexists(n+'\cheatengine-x86_64.po') or fileexists(n+'\cheatengine-i386.po')) then
       continue;
 
 
     e:=TLanguageEntry.Create;
     e.foldername:=ExtractFileName(n);
 
-    if FileExists(f[i]+PathDelim+'name.txt') then
-      n:=ReadFileToString(f[i]+PathDelim+'name.txt')
+    if FileExists(f[i]+'\name.txt') then
+      n:=ReadFileToString(f[i]+'\name.txt')
     else
       n:=e.foldername;
 
@@ -1907,8 +1899,6 @@ begin
   {$endif}
 
 
-
-
   tvMenuSelection.FullExpand;
 
   {$ifdef privatebuild}
@@ -1920,8 +1910,6 @@ begin
 
   if LoadFormPosition(self) then
     autosize:=false;
-
-
 
   {$ifdef darwin}
   cbUseVEHDebugger.enabled:=false;
@@ -1944,22 +1932,17 @@ end;
 procedure TformSettings.cbKernelQueryMemoryRegionClick(Sender: TObject);
 begin
   if (cbKernelQueryMemoryRegion.Checked) or (cbKernelReadWriteProcessMemory.Checked) then
-  begin
-    cbKernelOpenProcess.Checked:=true;
-    cbKernelOpenProcess.Enabled:=false;
-  end
+    begin
+      cbKernelOpenProcess.Checked:=true;
+      cbKernelOpenProcess.Enabled:=false;
+    end
   else cbKernelOpenProcess.Enabled:=true;
-
-
 end;
 
 procedure TformSettings.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   deletedmodules.Clear;
 end;
-
-
-
 
 procedure TformSettings.Button4Click(Sender: TObject);
 var pluginname: string;
@@ -1999,8 +1982,6 @@ begin
     clbPlugins.Items.Delete(clbplugins.ItemIndex);
 
 
-
-
     pluginid:=pluginhandler.GetPluginID(dllpath.path);
     pluginhandler.UnloadPlugin(pluginid);
 
@@ -2013,7 +1994,6 @@ procedure TformSettings.ScrollBox1Click(Sender: TObject);
 begin
 
 end;
-
 
 procedure TformSettings.spbUpClick(Sender: TObject);
 var
@@ -2032,8 +2012,7 @@ begin
 end;
 
 
-procedure TformSettings.tvMenuSelectionChange(Sender: TObject;
-  Node: TTreeNode);
+procedure TformSettings.tvMenuSelectionChange(Sender: TObject; Node: TTreeNode);
 var w,h: integer;
 begin
   if node.Data<>nil then
@@ -2114,7 +2093,7 @@ begin
       lvtools.Selected.SubItems[1]:=lblShortcutText.caption;
     end;
 
-    free;
+    Free;
   end;
 end;
 

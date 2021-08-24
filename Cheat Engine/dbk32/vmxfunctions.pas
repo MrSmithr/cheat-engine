@@ -1,5 +1,5 @@
 unit vmxfunctions;
-
+{$WARN 4056 off : Conversion between ordinals and pointers is not portable}
 interface
 
 {$mode DELPHI}
@@ -100,8 +100,6 @@ const
   VMCALL_SETBROKENTHREADENTRYFULL=77;
   VMCALL_RESUMEBROKENTHREAD=78;
 
-  VMCALL_HIDEDBVMPHYSICALADDRESSES=79;
-  VMCALL_HIDEDBVMPHYSICALADDRESSESALL=80;
 
   VMCALL_DEBUG_SETSPINLOCKTIMEOUT=254;
 
@@ -507,9 +505,6 @@ procedure dbvm_returntousermode(originalstate: POriginalState);
 function dbvm_kernelalloc(size: dword): pointer;
 function dbvm_copyMemory(destination, target: pointer; size: integer): boolean;
 
-procedure dbvm_hidephysicalmemory;
-procedure dbvm_hidephysicalmemoryall;
-
 //got lost since last harddisk crash. Not 'that' important, but will take a while to reimplement
 function dbvm_executeDriverEntry(driverentry: pointer; DriverObject: pointer; RegistryPath: pointer): integer;
 
@@ -520,8 +515,6 @@ function dbvm_testSwitchToKernelmode: integer; //returns 123 on success
 function dbvm_getProcAddress(functionname: string): pointer;
 
 procedure dbvm_testPSOD;
-
-function dbvm_ensure_pages_free(pagecount: integer): boolean;
 
 function dbvm_watch_writes(PhysicalAddress: QWORD; size: integer; Options: DWORD; MaxEntryCount: Integer; UserModeLoop: qword=0; KernelModeLoop: qword=0): integer;
 function dbvm_watch_reads(PhysicalAddress: QWORD; size: integer; Options: DWORD; MaxEntryCount: Integer; UserModeLoop: qword=0; KernelModeLoop: qword=0): integer;
@@ -906,8 +899,7 @@ begin
     mov r,rax
 {$else}
     mov eax,vmcallinfo
-    mov edx,[vmx_password1]
-    mov ecx,[vmx_password3]
+    mov edx,level1pass
     vmmcall     //should raise an UD if the cpu does not support it  (or the password is wrong)
     mov r,eax
 {$endif}
@@ -940,8 +932,7 @@ begin
     mov r,rax
 {$else}
     mov eax,vmcallinfo
-    mov edx,[vmx_password1]
-    mov ecx,[vmx_password3]
+    mov edx,[level1pass]
     vmmcall     //should raise an UD if the cpu does not support it  (or the password is wrong)
     mov r,eax
     mov r2,edx
@@ -979,8 +970,7 @@ begin
     mov r,rax
 {$else}
     mov eax,vmcallinfo
-    mov edx,[vmx_password1]
-    mov ecx,[vmx_password3]
+    mov edx,[level1pass]
     vmcall     //should raise an UD if the cpu does not support it  (or the password is wrong)
     mov r,eax
     mov r2,edx
@@ -1009,15 +999,15 @@ begin
     mov rcx,[RIP+vmx_password3]
 
 
-    vmcall
+    //vmcall
 
     mov rdx,originalrdx
     mov rcx,originalrcx
     mov r,rax
 {$else}
     mov eax,vmcallinfo
-    mov edx,[vmx_password1]
-    mov ecx,[vmx_password3]
+    mov edx,level1pass
+    mov ecx,level3pass
     vmcall     //should raise an UD if the cpu does not support it  (or the password is wrong)
     mov r,eax
 {$endif}
@@ -1443,24 +1433,6 @@ begin
 end;
 
 
-function dbvm_ensure_pages_free(pagecount: integer): boolean;
-var pagesfree: qword;
-begin
-  dbvm_getMemory(pagesfree);
-  if pagesfree<qword(pagecount) then
-  begin
-    {$ifdef windows}
-    allocateMemoryForDBVM(pagecount*2);
-
-    dbvm_getMemory(pagesfree);
-    if pagesfree<pagecount then    //failed to allocate (e.g. no driver)
-    {$endif}
-      exit(false);
-  end;
-
-  result:=true;
-end;
-
 function dbvm_watch_writes(PhysicalAddress: QWORD; size: integer; Options: DWORD; MaxEntryCount: Integer; UserModeLoop: qword=0; KernelModeLoop: qword=0): integer;
 var vmcallinfo: packed record
       structsize: dword;   //0
@@ -1475,18 +1447,9 @@ var vmcallinfo: packed record
       ID: integer; //return value
     end;
     r: integer;
-
-    entrysize: integer;
 begin
   result:=-1;
   outputdebugstring('dbvm_watch_writes');
-
-  entrysize:=sizeof(TPageEventBasic);
-  if (EPTO_SAVE_FXSAVE and options)<>0 then inc(entrysize,sizeof(TFXSAVE64)); //512
-  if (EPTO_SAVE_STACK and options)<>0 then inc(entrysize,4096);
-
-  if not dbvm_ensure_pages_free(GetCPUCount*3+((MaxEntryCount*entrysize) shr 12)) then exit;
-
   options:=options and (not EPTO_PMI_WHENFULL); //make sure this is not used
 
   vmcallinfo.structsize:=sizeof(vmcallinfo);
@@ -1527,17 +1490,9 @@ var vmcallinfo: packed record
       ID: integer; //return value
     end;
     r: integer;
-
-    entrysize: integer;
 begin
   result:=-1;
   outputdebugstring('dbvm_watch_reads');
-
-  entrysize:=sizeof(TPageEventBasic);
-  if (EPTO_SAVE_FXSAVE and options)<>0 then inc(entrysize,sizeof(TFXSAVE64)); //512
-  if (EPTO_SAVE_STACK and options)<>0 then inc(entrysize,4096);
-  if not dbvm_ensure_pages_free(GetCPUCount*3+((MaxEntryCount*entrysize) shr 12)) then exit;
-
   options:=options and (not EPTO_PMI_WHENFULL); //make sure this is not used
 
   vmcallinfo.structsize:=sizeof(vmcallinfo);
@@ -1577,18 +1532,9 @@ var vmcallinfo: packed record
       ID: integer; //return value
     end;
     r: integer;
-
-    entrysize: integer;
 begin
   result:=-1;
   outputdebugstring(format('dbvm_watch_executes(%x,%d,%x,%d)',[PhysicalAddress, Size, Options, MaxEntryCount]));
-
-  entrysize:=sizeof(TPageEventBasic);
-  if (EPTO_SAVE_FXSAVE and options)<>0 then inc(entrysize,sizeof(TFXSAVE64)); //512
-  if (EPTO_SAVE_STACK and options)<>0 then inc(entrysize,4096);
-  if not dbvm_ensure_pages_free(GetCPUCount*3+((MaxEntryCount*entrysize) shr 12)) then exit;
-
-
   options:=options and (not EPTO_PMI_WHENFULL); //make sure this is not used
 
   vmcallinfo.structsize:=sizeof(vmcallinfo);
@@ -1810,8 +1756,6 @@ var
   end;
   i: integer;
 begin
-  if not dbvm_ensure_pages_free(GetCPUCount*3) then exit(-1);
-
   PhysicalBase:=PhysicalBase and MAXPHYADDRMASKPB;
   virtualAddress:=virtualAddress and qword($fffffffffffff000);
 
@@ -2434,7 +2378,7 @@ end;
 
 function dbvm_log_cr3values_start: boolean;
 begin
-  result:=foreachcpu(dbvm_log_cr3_start,nil);
+  foreachcpu(dbvm_log_cr3_start,nil);
 end;
 
 function dbvm_log_cr3_fullstop(parameters: pointer): BOOL; stdcall;   //needed to stop the cr3 watch on the other cpus
@@ -3231,31 +3175,6 @@ begin
   result:=r;
 end;
 
-procedure dbvm_hidephysicalmemory;
-var vmcallinfo: packed record
-  structsize: dword;
-  level2pass: dword;
-  command: dword;
-end;
-begin
-  vmcallinfo.structsize:=sizeof(vmcallinfo);
-  vmcallinfo.level2pass:=vmx_password2;
-  vmcallinfo.command:=VMCALL_HIDEDBVMPHYSICALADDRESSES;
-  vmcall(@vmcallinfo);
-end;
-
-procedure dbvm_hidephysicalmemoryall;
-var vmcallinfo: packed record
-  structsize: dword;
-  level2pass: dword;
-  command: dword;
-end;
-begin
-  vmcallinfo.structsize:=sizeof(vmcallinfo);
-  vmcallinfo.level2pass:=vmx_password2;
-  vmcallinfo.command:=VMCALL_HIDEDBVMPHYSICALADDRESSESALL;
-  vmcall(@vmcallinfo);
-end;
 
 
 function getClientIDFromDBVMBPShortState(state: TDBVMBPShortState; out clientid: TClientID): boolean;

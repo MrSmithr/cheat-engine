@@ -714,10 +714,7 @@ var
   MemoryBrowser: TMemoryBrowser;
   mbchildcount: integer; //global so all other children can increase it as well
 
-
   MemoryBrowsers: TList; //contains a list of all the memorybrowsers
-
-
   
 implementation
 
@@ -741,8 +738,7 @@ uses Valuechange, MainUnit, debugeventhandler, findwindowunit,
   vmxfunctions, frmstructurecompareunit, globals, UnexpectedExceptionsHelper,
   frmExceptionRegionListUnit, frmExceptionIgnoreListUnit, frmcodefilterunit,
   frmDBVMWatchConfigUnit, DBK32functions, DPIHelper, DebuggerInterface,
-  DebuggerInterfaceAPIWrapper, BreakpointTypeDef, CustomTypeHandler,
-  frmSourceDisplayUnit, sourcecodehandler, tcclib;
+  DebuggerInterfaceAPIWrapper, BreakpointTypeDef, CustomTypeHandler, tcclib;
 
 
 resourcestring
@@ -759,7 +755,7 @@ resourcestring
   rsCheatEngineSingleLingeAssembler = 'Single-line assembler';
   rsTypeYourAssemblerCodeHereAddress = 'Type your assembler code here: (address=%s)';
   rsTheGeneratedCodeIsByteSLongButTheSelectedOpcodeIsB = 'The generated code is %s byte(s) long, but the selected opcode is %s byte(s) long! Do you want to replace the '
-    +'incomplete opcode(s) with NOP''s?';
+                                                       + 'incomplete opcode(s) with NOPs?';
   rsIDonTUnderstandWhatYouMeanWith = 'I don''t understand what you mean with %s';
   rsChangeRegister = 'Change register';
   rsWhatIsTheNewValueOf = 'What is the new value of %s?';
@@ -772,7 +768,7 @@ resourcestring
   rsAtLeastBytesHaveBeenAllocatedAtDoYouWantToGoThereN = 'At least %s bytes have been allocated at %s%sDo you want to go there now?';
   rsCreateRemoteThread = 'Create remote thread';
   rsWhatWillBeTheStartaddressOfThisThread = 'What will be the startaddress of this thread?';
-  rsPleaseEnterAValidHexadecimalAddres = 'Please enter a valid hexadecimal addres';
+  rsPleaseEnterAValidHexadecimalAddres = 'Please enter a valid hexadecimal address';
   rsYouWantToGiveAnAdditional32BitParameterWillShowUpI = 'You want to give an additional 32-bit parameter? (Will show up in (R)/(E)BX)';
   rsPleaseEnterAValidHexadecimalValue = 'Please enter a valid hexadecimal value';
   rsPleaseTargetAProcessFirst = 'Please target a process first';
@@ -784,7 +780,7 @@ resourcestring
   rsHowMuchMemoryDoYouWishToAllocate = 'How much memory do you wish to allocate?';
   rsAtLeastBytesHaveBeenAllocatedAtGoThereNow = 'At least %s bytes have been allocated at %s. Go there now?';
   rsGetKernelAddress = 'Get kernel address';
-  rsGiveTheNameOfTheFunctionYouWantToFindCaseSensitive = 'Give the name of the function you want to find (Case sensitive,certain words can cause blue screens)';
+  rsGiveTheNameOfTheFunctionYouWantToFindCaseSensitive = 'Give the name of the function you want to find (Case sensitive, certain words can cause blue screens)';
   rsAssemblyScan = 'Assembly scan';
   rsInputTheAssemblyCodeToFindWilcardsSupported = 'Input the assembly code to find. Wildcards( * ) supported.';
   rsSymbolHandler = 'Symbol handler';
@@ -949,12 +945,11 @@ begin
   else HideDebugToolbar;
 end;
 
-procedure TMemoryBrowser.RegisterMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TMemoryBrowser.RegisterMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var s: string;
-i: integer;
+    i: integer;
 begin
-  if button = mbright then
+  if button = mbRight then
   begin
     if (sender is TLabel) then
     begin
@@ -963,7 +958,6 @@ begin
       if i>0 then //should always be true
       begin
         s:=copy(s,i+1,length(s));
-
         clipboard.AsText:=s;
       end;
     end;
@@ -980,12 +974,10 @@ end;
 
 procedure TMemoryBrowser.miLuaEngineClick(Sender: TObject);
 begin
-  //start lua engine window
+  //Start Lua Engine window
   if frmLuaEngine=nil then
     frmLuaEngine:=TfrmLuaEngine.create(MemoryBrowser); //main mb
-
-  frmLuaEngine.show;
-
+    frmLuaEngine.show;
 end;
 
 procedure TMemoryBrowser.miPagingClick(Sender: TObject);
@@ -1001,7 +993,7 @@ begin
   try
     s.text:=dassemblercomments.comments[disassemblerview.SelectedAddress];
     if multilineinputquery(Format(rsCommentFor, [inttohex(disassemblerview.SelectedAddress, 8)]), Format(rsCommentFor, [inttohex(disassemblerview.SelectedAddress, 8)])+' '+rsSShowsTheAutoguessValue, s) then
-      dassemblercomments.comments[disassemblerview.SelectedAddress]:=utf8toansi(s.text);
+       dassemblercomments.comments[disassemblerview.SelectedAddress]:=utf8toansi(s.text);
   finally
     s.free;
   end;
@@ -1050,8 +1042,6 @@ begin
   hexview.EndDifferenceView;
 end;
 
-
-
 procedure TMemoryBrowser.memorypopupPopup(Sender: TObject);
 var
   m: TMemorybrowser;
@@ -1063,11 +1053,8 @@ var
   hasbp: boolean;
 
   mbi: TMEMORYBASICINFORMATION;
-
-
 begin
   //update customtypes
-
 
   for i:=0 to customTypes.Count-1 do
   begin
@@ -1088,7 +1075,7 @@ begin
     mi.tag:=$1000+i;
   end;
 
-  //delete the entries that are too many
+  //Delete the surplus entries
   while DisplayType1.Count>dispDouble.MenuIndex+customTypes.Count+1 do
     DisplayType1.Delete(dispDouble.MenuIndex+customTypes.Count+1);
 
@@ -1236,26 +1223,17 @@ begin
 end;
 
 procedure TMemorybrowser.setCR3(newcr3: qword);
-var oldcr3: qword;
 begin
-  oldcr3:=fcr3;
-  if debuggerthread<>nil then debuggerthread.execlocation:=4120;
-
   fcr3:=newcr3;
   disassemblerview.cr3:=fcr3;
-  if debuggerthread<>nil then debuggerthread.execlocation:=4121;
   hexview.cr3:=fcr3;
-  if debuggerthread<>nil then debuggerthread.execlocation:=4122;
 
-  if (newcr3<>oldcr3) then
+  if newcr3<>0 then
   begin
-    if debuggerthread<>nil then debuggerthread.execlocation:=4123;
     createcr3switcher;
-    if debuggerthread<>nil then debuggerthread.execlocation:=4124;
     fcr3switcher.addCR3ToList(newcr3);
-    if debuggerthread<>nil then debuggerthread.execlocation:=4125;
+
     fcr3switcher.Show;
-    if debuggerthread<>nil then debuggerthread.execlocation:=4126;
   end;
 
   caption:=caption;
@@ -1871,9 +1849,6 @@ begin
     begin
       initialaddress:=memoryaddress;
       show;
-
-      if initialaddress=0 then //address 0 would normally NOT add a new address, but this is a user specified address, so do it anyhow
-      addColumn;
     end;
   end;
 end;
@@ -2444,8 +2419,7 @@ begin
 
   reg:=Tregistry.Create;
   try
-
-    if reg.OpenKey('\Software\Cheat Engine\Disassemblerview '+inttostr(screen.PixelsPerInch)+darkmodestring+'\',true) then
+    if reg.OpenKey('\Software\Cheat Engine\Disassemblerview '+inttostr(screen.PixelsPerInch)+'\',true) then
     begin
       reg.{$ifdef windows}WriteBinaryData{$else}WriteString{$endif}('colors', {$ifndef windows}bintohexs({$endif}disassemblerview.colors, sizeof(disassemblerview.colors)){$ifndef windows}){$endif};
 
@@ -2562,7 +2536,6 @@ procedure TMemoryBrowser.disassemblerviewDblClick(Sender: TObject);
 var m: TPoint;
   a: ptruint;
   lni: PLineNumberInfo;
-  f: TfrmSourceDisplay;
 begin
   //find what column is clicked
 
@@ -2579,9 +2552,7 @@ begin
   lni:=disassemblerview.getSourceCodeAtPos(m);
   if lni<>nil then
   begin
-    f:=getSourceViewForm(lni);
-    if f<>nil then
-      f.show();
+    showmessage('todo: show sourcecode in a synedit with debug options:'+lni.sourcefile.Text);
     exit;
   end;
 
@@ -2638,6 +2609,7 @@ begin
 
   disassemblerview:=TDisassemblerview.Create(self);
   disassemblerview.font:=mainform.font;
+  //disassemblerview.Canvas.Colors[0,100] := TColorToFPColor($0000FF);
   disassemblerview.Align:=alClient;
   disassemblerview.Parent:=panel5;
   disassemblerview.PopupMenu:=debuggerpopup;
@@ -2673,7 +2645,7 @@ begin
       disassemblerview.font:=f;
     end;
 
-    if reg.OpenKey('\Software\Cheat Engine\Disassemblerview '+inttostr(screen.PixelsPerInch)+darkmodestring+'\',false) then
+    if reg.OpenKey('\Software\Cheat Engine\Disassemblerview '+inttostr(screen.PixelsPerInch)+'\',false) then
     begin
       if reg.ValueExists('colors') then
       begin
@@ -2759,17 +2731,10 @@ begin
       setRegisterPanelFont(f);
     end;
 
-
   finally
     f.free;
     reg.free;
   end;
-
-
-
-
-
-
 
 
   memoryaddress:=$00400000;
@@ -2852,6 +2817,7 @@ begin
   begin
     fAccessedRegisterColor:=clBlue;
     fChangedRegisterColor:=clred;
+
   end
   else
   begin
@@ -4157,9 +4123,6 @@ begin
 
       DebuggerThread.ToggleOnExecuteBreakpoint(disassemblerview.SelectedAddress,bpm);
       disassemblerview.Update;
-
-      ApplySourceCodeDebugUpdate;
-
     end;
   except
     on e:exception do MessageDlg(e.message,mtError,[mbok],0);
@@ -4854,6 +4817,7 @@ end;
 
 
 procedure TMemoryBrowser.FindwhatThiscodeAccesses(address: ptrUint);
+var i: integer;
 begin
   if not startdebuggerifneeded then exit;
   if debuggerthread<>nil then
@@ -5599,8 +5563,6 @@ begin
   miDebugSetAddress.enabled:=false;
   stacktrace1.Enabled:=false;
   miDebugExecuteTillReturn.Enabled:=false;
-
-  ApplySourceCodeDebugUpdate;
   {Other tasks}
   //...
 end;
@@ -6275,8 +6237,6 @@ begin
 
 
   ApplyFollowRegister;
-  ApplySourceCodeDebugUpdate;
-
   {for i:=0 to 4095 do
   begin
     if pbyte(ptruint(laststack)+stacktracesize+i)^<>$ce then

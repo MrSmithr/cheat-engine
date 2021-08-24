@@ -583,8 +583,7 @@ begin
   case mode of
     smLua:
     begin
-      if assemblescreen<>nil then
-        assemblescreen.Highlighter:=LuaHighlighter;
+      assemblescreen.Highlighter:=LuaHighlighter;
 
       //change gui to lua style
       btnExecute.Caption:=rsExecuteScript;
@@ -605,8 +604,7 @@ begin
 
     smAutoAssembler:
     begin
-      if assemblescreen<>nil then
-        assemblescreen.Highlighter:=AAHighlighter;
+      assemblescreen.Highlighter:=AAHighlighter;
 
 
       //change gui to autoassembler style
@@ -626,8 +624,7 @@ begin
 
     smGnuAssembler:
     begin
-      if assemblescreen<>nil then
-        assemblescreen.Highlighter:=nil; //no highlighter for it yet
+      assemblescreen.Highlighter:=nil; //no highlighter for it yet
 
       btnExecute.Caption:=rsWriteCode;
       opendialog1.DefaultExt:='CEGA';
@@ -1376,8 +1373,6 @@ begin
     originalcodebuffer:=nil;
 
 
-
-
     with enablescript do
     begin
       if (processhandler.SystemArchitecture=archx86) and (not processhandler.is64bit) then
@@ -1686,8 +1681,7 @@ begin
   assemblescreen.SetFocus;
 end;
 
-procedure TfrmAutoInject.assemblescreenKeyDown(Sender: TObject;
-  var Key: Word; Shift: TShiftState);
+procedure TfrmAutoInject.assemblescreenKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
 {   if (ssCtrl in Shift) and (key=ord('A'))  then
    begin
@@ -1803,11 +1797,6 @@ begin
 
     luaserverinit.free;
   end;
-
-
-
-
-
 end;
 
 procedure TfrmAutoInject.Coderelocation1Click(Sender: TObject);
@@ -2097,10 +2086,6 @@ begin
 
   end;
 
-
-
-
-
   assemblescreen.BeginUpdate(false);
   assemblescreen.text:=TAAScriptTabData(tablist.CurrentTabData).script;
   opendialog1.FileName:=TAAScriptTabData(tablist.CurrentTabData).filename;
@@ -2146,6 +2131,7 @@ begin
 
 
   l.free;
+
 
 {$endif}
 end;
@@ -2272,7 +2258,6 @@ var
   fq: TFontQuality;
 begin
 
-
   {$ifndef standalonetrainerwithassembler}
 
   AAHighlighter:=TSynAASyn.Create(self);
@@ -2291,6 +2276,11 @@ begin
   fq:=assemblescreen.Font.Quality;
   if not (fq in [fqCleartypeNatural, fqDefault]) then
     assemblescreen.Font.quality:=fqDefault;
+
+ { if overridefont<>nil then
+    assemblescreen.Font.assign(overridefont)
+  else
+    assemblescreen.Font.Size:=10;    }
 
   //assemblescreen.Font.Quality:=fqDefault;
   assemblescreen.WantTabs:=true;
@@ -2325,7 +2315,6 @@ begin
   assemblescreen.Gutter.SeparatorPart.MarkupInfo.Background:=clBtnFace;
 
 
-
   setlength(x,0);
   LoadedFormPosition:=loadformposition(self,x);
 
@@ -2355,7 +2344,6 @@ begin
     reg.free;
   end;
 
-
   for i:=0 to length(AutoAssemblerTemplates)-1 do
     addTemplate(i);
 
@@ -2374,11 +2362,8 @@ begin
   load1.Shortcut:=TextToShortCut('Meta+O');
   save1.Shortcut:=TextToShortCut('Meta+S');
 
-  if assemblescreen<>nil then
-  begin
-    i:=assemblescreen.Keystrokes.FindCommand(ecSelectAll);
-    if i<>-1 then assemblescreen.Keystrokes[i].ShortCut:=TextToShortCut('Meta+A');
-  end;
+  i:=assemblescreen.Keystrokes.FindCommand(ecSelectAll);
+  if i<>-1 then assemblescreen.Keystrokes[i].ShortCut:=TextToShortCut('Meta+A');
 {$endif}
 
 end;
@@ -2669,8 +2654,6 @@ begin
             reg.WriteString('Font.name', assemblescreen.Font.Name);
             reg.WriteInteger('Font.size', assemblescreen.Font.size);
             reg.WriteInteger('Font.quality', integer(assemblescreen.Font.Quality));
-
-
 
             //assemblescreen.Font.
 
@@ -3020,7 +3003,7 @@ begin
     // finally add comment at the beginning
     script.Insert(0,'{ Game   : ' + copy(mainform.ProcessLabel.Caption, pos('-', mainform.ProcessLabel.Caption) + 1, length(mainform.ProcessLabel.Caption)));
     script.Insert(1,'  Version: ');
-    script.Insert(2,'  Date   : ' + FormatDateTime('YYYY-MM-DD', Now));
+    script.Insert(2,'  Date   : ' + FormatDateTime('DD-MM-YYYY', Now));
     script.Insert(3,'  Author : ' + UserName);
     script.Insert(4,'');
     script.Insert(5,'  This script does blah blah blah');
@@ -3072,9 +3055,9 @@ end;
 
 procedure TfrmAutoInject.reloadHighlighterSettings;
 begin
-  {LuaHighlighter.LoadFromRegistry(HKEY_CURRENT_USER, '\Software\Cheat Engine\Lua Highlighter'+darkmodestring);
+  LuaHighlighter.LoadFromRegistry(HKEY_CURRENT_USER, '\Software\Cheat Engine\Lua Highlighter'+darkmodestring);
   AAHighlighter.LoadFromRegistry(HKEY_CURRENT_USER, '\Software\Cheat Engine\AA Highlighter'+darkmodestring);
-  CPPHighlighter.LoadFromRegistry(HKEY_CURRENT_USER, '\Software\Cheat Engine\CPP Highlighter'+darkmodestring);}
+  CPPHighlighter.LoadFromRegistry(HKEY_CURRENT_USER, '\Software\Cheat Engine\CPP Highlighter'+darkmodestring);
 end;
 
 procedure TfrmAutoInject.MenuItem2Click(Sender: TObject);
@@ -3319,7 +3302,7 @@ begin
     // add template comment at the beginning
     script.Insert(0, '{ '+rsAAAOBTemplate_Game+'   : ' + copy(mainform.ProcessLabel.Caption, pos('-', mainform.ProcessLabel.Caption) + 1, length(mainform.ProcessLabel.Caption)));
     script.Insert(1, '  '+rsAAAOBTemplate_Version+': ');
-    script.Insert(2, '  '+rsAAAOBTemplate_Date+'   : ' + FormatDateTime('YYYY-MM-DD', Now));
+    script.Insert(2, '  '+rsAAAOBTemplate_Date+'   : ' + FormatDateTime('DD-MM-YYYY', Now));
     script.Insert(3, '  '+rsAAAOBTemplate_Author+' : ' + UserName);
     script.Insert(4,'');
     script.Insert(5, '  '+rsAAAOBTemplate_blabla);

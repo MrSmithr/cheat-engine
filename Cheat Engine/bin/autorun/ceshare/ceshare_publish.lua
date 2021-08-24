@@ -453,11 +453,14 @@ function ceshare.publishOrUpdate(cheatinfo) --cheatinfo is a set if an update
     
     if MainForm.miSignTable.Visible then
       if messageDialog(translate('Do you wish to sign this table?'),mtConfirmation,mbYes,mbNo)==mrYes then
-        local r,msg=signTable(ceshare.path..'temptable.ct')
-        if not r then
-          messageDialog(msg,mtError,mbOK)
-          return
-        end
+        local originalFile=MainForm.OpenDialog1.FileName
+        local originalDir=MainForm.OpenDialog1.InitialDir
+        MainForm.OpenDialog1.FileName=ceshare.path..'temptable.ct'
+        MainForm.OpenDialog1.InitialDir=ceshare.path
+        MainForm.miSignTable.doClick()
+        
+        MainForm.OpenDialog1.InitialDir=originalDir
+        MainForm.OpenDialog1.FileName=originalFile
       end
     end    
     

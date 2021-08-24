@@ -15,7 +15,7 @@ uses
 
 {$endif}
 
-const currentversion=2000027;
+const currentversion=2000026;
 
 const FILE_ANY_ACCESS=0;
 const FILE_SPECIAL_ACCESS=FILE_ANY_ACCESS;
@@ -1585,8 +1585,6 @@ begin
   result:=false;
   numberofbytesread:=0;
   //find the hprocess in the handlelist, if it isn't use the normal method (I could of course use NtQueryProcessInformation but it's undocumented and I'm too lazy to dig it up
-
-  if handlemapmrew=nil then exit(windows.ReadProcessMemory(hProcess,pointer(ptrUint(lpBaseAddress)),lpBuffer,nSize,NumberOfBytesRead));
 
   handlemapmrew.Beginread;
   validhandle:=handlemap.GetData(hProcess,l);
@@ -3180,8 +3178,7 @@ begin
 
         if not fileexists(dataloc) then
         begin
-
-          servicename:='CEDRIVER73';
+          servicename:='CEDRIVER60';
           ultimapservicename:='ULTIMAP2';
           processeventname:='DBKProcList60';
           threadeventname:='DBKThreadList60';

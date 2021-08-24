@@ -1270,7 +1270,6 @@ procedure TDissectedStruct.setName(newname: string);
 begin
   structname:=newname;
   DoFullStructChangeNotification;
-
 end;
 
 function TDissectedStruct.getElementCount: integer;
@@ -4122,9 +4121,10 @@ var currentNode: TTreenode;
     clearSavedValueList: boolean;
 begin
   //update the childnode of the treenode with this struct to represent the new state
-  clearSavedValueList:=false;
   if mainStruct<>nil then
   begin
+    clearSavedValueList:=false;
+
 
     currentNode:=tvStructureView.Items.GetFirstNode;
     if currentnode=nil then
@@ -4158,8 +4158,6 @@ begin
       end;
       currentnode:=nextnode;
     end;
-
-    UpdateCurrentStructOptions;
 
   end;
 
@@ -5208,16 +5206,13 @@ procedure TfrmStructures2.tvStructureViewMouseDown(Sender: TObject;
 var i: integer;
   c: TStructColumn;
   n: TTreenode;
-  se: TStructelement;
-  error: boolean;
-  address: ptruint;
 begin
 
   c:=getColumnAtXPos(x+tvStructureView.ScrolledLeft);
   if c<>nil then
     c.focus;
 
-  if (button=mbRight) or (button=mbMiddle) then //lazarus 32774: If rightclickselect is on it does not deselect other lines
+  if (button=mbRight) then //lazarus 32774: If rightclickselect is on it does not deselect other lines
   begin
     n:=tvStructureView.GetNodeAt(x,y);
     if n<>nil then
@@ -5235,21 +5230,6 @@ begin
       end;
 
 
-    end;
-  end;
-
-  if (button=mbMiddle) then
-  begin
-    n:=tvStructureView.GetNodeAt(x,y);
-    if n<>nil then
-    begin
-      se:=getStructElementFromNode(N);
-      if se<>nil then
-      begin
-        address:=getAddressFromNode(n, c, error);
-        if not error then
-          clipboard.AsText:=se.getValue(address);
-      end;
     end;
   end;
 end;
@@ -6685,7 +6665,7 @@ begin
         f:=tfrmstructures2.create(application);
         f.initialaddress:=p;
         f.show;
-        struct:=f.DefineNewStructureDialog(4096);
+        struct:=f.DefineNewStructure(4096);
 
         se:=getStructElementFromNode(node);
         if se<>nil then
@@ -6773,8 +6753,6 @@ end;
 
 function TfrmStructures2.getGroup(i: integer): TStructGroup;
 begin
-  if (i<0) or (i>fgroups.count) then exit(nil);
-
   result:=TStructGroup(fgroups[i]);
 end;
 

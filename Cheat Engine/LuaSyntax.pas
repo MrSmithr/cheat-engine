@@ -1914,12 +1914,7 @@ begin
   AddAttribute(fLuaMStringAttri);
 
   fNumberAttri := TSynHighLighterAttributes.Create(SYNS_AttrNumber);
-  if ShouldAppsUseDarkMode=false then
-    fNumberAttri.Foreground := $f00000
-  else
-    fNumberAttri.Foreground := $f05028;
-
-
+  fNumberAttri.Foreground := $f00000;
   AddAttribute(fNumberAttri);
 
   fHexAttri := TSynHighLighterAttributes.Create(SYNS_AttrHexadecimal);
